@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)file:///Users/kuma/Downloads/scheduling_v14_42.html -->
+<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KKday SCM 排班系統 v14</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a1a;font-size:14px;background:#f5f5f5;padding:1rem}
+.nav{display:flex;border-bottom:1px solid #ddd;margin-bottom:1.5rem;overflow-x:auto;background:#fff;border-radius:10px 10px 0 0;padding:0 .5rem}
+.nav-btn{padding:10px 14px;font-size:12px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:#666;white-space:nowrap;flex-shrink:0}
+.nav-btn.active{color:#111;border-bottom-color:#111;font-weight:600}
+.page{display:none}.page.active{display:block}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card-title{font-size:14px;font-weight:600;margin-bottom:1rem}
+.label{font-size:12px;color:#666;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+select,input[type=text],input[type=number],input[type=email]{font-size:13px;padding:6px 10px;border:1px solid #ddd;border-radius:7px;background:#fff;color:#1a1a1a;width:100%}
+.btn{font-size:13px;padding:7px 16px;border:1px solid #ddd;border-radius:7px;background:#fff;color:#1a1a1a;cursor:pointer}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-primary:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-danger{border-color:#e24b4a;color:#a32d2d}
+.btn-danger:hover{background:#fcebeb}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:7px 10px;font-weight:500;font-size:11px;color:#666;border-bottom:1px solid #eee}
+.tbl td{padding:6px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500}
+.bok{background:#eaf3de;color:#27500a}.berr{background:#fcebeb;color:#791f1f}.bwarn{background:#faeeda;color:#633806}
+.cp-tw{background:#e6f1fb;color:#0c447c;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block}
+.cp-my{background:#eaf3de;color:#27500a;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block}
+.stat-card{background:#f7f7f7;border-radius:8px;padding:.75rem 1rem;text-align:center}
+.stat-num{font-size:20px;font-weight:600;margin-top:4px}
+.member-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.member-row:last-child{border-bottom:none}
+.avatar{width:30px;height:30px;border-radius:50%;background:#b5d4f4;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#0c447c;flex-shrink:0}
+.avatar-my{background:#c0dd97;color:#27500a}
+.flex{display:flex;align-items:center;gap:8px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.ai{background:#e6f1fb;color:#0c447c;border:1px solid #b5d4f4;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:.75rem}
+.aw{background:#faeeda;color:#633806;border:1px solid #fac775;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:4px}
+.ad{background:#fcebeb;color:#791f1f;border:1px solid #f7c1c1;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:4px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal-box{background:#fff;border-radius:12px;border:1px solid #ddd;padding:1.5rem;max-width:480px;width:90%;max-height:90vh;overflow-y:auto}
+.cal-wrap{overflow-x:auto}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(34px,1fr));gap:3px;min-width:256px}
+.cal-hdr{text-align:center;font-size:11px;color:#999;padding:4px 0;font-weight:500}
+.cal-day{font-size:12px;padding:5px 2px;border-radius:7px;cursor:pointer;border:1px solid transparent;min-height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.cal-day:hover:not(.empty){filter:brightness(.93)}
+.cal-day.empty{cursor:default}
+.cal-day.is-hol{background:#fac775;color:#412402}
+.cal-day.ps{background:#b5d4f4;color:#042c53;border-color:#378add}
+.cal-day.pw{background:#ccc8f0;color:#26215c;border-color:#7f77dd}
+.day-tag{font-size:9px;opacity:.85}
+.sc{border-radius:3px;padding:2px 1px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;line-height:1.3}
+.sc-a{background:#97c459;color:#173404}
+.sc-c{background:#97c459;color:#173404}
+.sc-e{background:#fac775;color:#412402}
+.sc-xiu{background:#378add;color:#e6f1fb}
+.sc-li{background:#e24b4a;color:#fcebeb}
+.sc-hol-off{background:#e24b4a;color:#fcebeb}
+.sc-hol-a,.sc-hol-e,.sc-hol-c{background:#ccff00;color:#2d3a00}
+.sc-off{background:#b4b2a9;color:#2c2c2a}
+.sc-err{outline:2px solid #e24b4a}.sc-warn{outline:2px solid #f59e0b}
+.leg-row{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;margin-bottom:.75rem;align-items:center}
+.leg{display:flex;align-items:center;gap:4px}
+.leg-sw{width:16px;height:14px;border-radius:3px;flex-shrink:0}
+.sec{font-size:12px;font-weight:600;margin-bottom:6px}
+.diff-pos{color:#27500a;font-weight:600}
+.diff-neg{color:#a32d2d;font-weight:600}
+.diff-zero{color:#999}
+.cell-menu{position:fixed;z-index:999;background:#fff;border:1px solid #ddd;border-radius:8px;padding:4px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:150px}
+.cell-opt{padding:4px 6px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+.cell-opt:hover{filter:brightness(.88)}
+</style></head><body>
+
+<!-- Google Identity Services -->
+<!-- Login Screen -->
+<div id="loginWrap" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: rgb(248, 250, 252); position: fixed; inset: 0px; z-index: 9999;">
+  <div style="background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);padding:2.5rem;width:360px;max-width:90vw;text-align:center">
+    <div style="font-size:32px;margin-bottom:.75rem">📅</div>
+    <div style="font-size:20px;font-weight:700;color:#111;margin-bottom:.25rem">KKday SCM 排班系統</div>
+    <div style="font-size:13px;color:#666;margin-bottom:1.5rem">請用 KKday Google 帳號登入</div>
+    <div id="loginError" style="color:#ef4444;font-size:12px;min-height:16px;margin-bottom:.75rem"></div>
+    <button onclick="doGoogleLogin()" style="display: flex; align-items: center; gap: 10px; margin: 0px auto; padding: 12px 24px; border: 1.5px solid rgb(218, 220, 224); border-radius: 8px; background: rgb(255, 255, 255); cursor: pointer; font-size: 15px; color: rgb(60, 64, 67); font-weight: 500; transition: box-shadow 0.2s; box-shadow: none;" onmouseover="this.style.boxShadow=&#39;0 2px 8px rgba(0,0,0,.15)&#39;" onmouseout="this.style.boxShadow=&#39;none&#39;">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"></path><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path></svg>
+      使用 Google 帳戶登入
+    </button>
+    <div id="loginLoading" style="display:none;color:#666;font-size:13px;margin-top:1rem">登入中，請稍候...</div>
+  </div>
+</div>
+
+<div id="appWrap" style="display: none;">
+<div class="nav" id="mainNav">
+  <button class="nav-btn active" onclick="goPage(&#39;setup&#39;)">設定</button>
+  <button class="nav-btn" onclick="goPage(&#39;employees&#39;)">員工</button>
+  <button class="nav-btn" onclick="goPage(&#39;prefs&#39;)">偏好</button>
+  <button class="nav-btn" onclick="goPage(&#39;demand&#39;)">需求結果</button>
+  <button class="nav-btn" onclick="goPage(&#39;result&#39;)">排班結果</button>
+  <button class="nav-btn" onclick="goPage(&#39;overtime&#39;)">加班清單</button>
+  <button class="nav-btn" id="permBtn" onclick="goPage(&#39;perms&#39;)" style="display:none">權限管理</button>
+  <div style="margin-left:auto;padding:0 12px;display:flex;align-items:center" id="userInfo"></div>
+</div>
+
+<!-- 設定 -->
+<div class="page active" id="page-setup">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:1rem">
+      <div class="card-title" style="margin:0">組別與月份</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="openAddGroup()">+ 新增組別</button>
+        <button class="btn btn-sm" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5" onclick="deleteGroup()">刪除此組別</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div><div class="label">組別</div><select id="groupSelect" onchange="onGroupChange()"><option value="japan" selected="">日文組/Japan</option><option value="tw_payment">台灣帳務(高鐵假期)/TW Payment+KHSR</option><option value="tw_order">台灣訂單/TW Order</option><option value="night">夜班/Night TW</option><option value="longhaul">長線/Long-haul</option><option value="sea">東南亞+Vietnam/SEA+VN</option><option value="night_en">英文夜班/Night EN</option><option value="en_rec">英文對帳/EN Reconcile</option><option value="korea">韓文/Korea</option><option value="hk">香港+中國/HK+China</option><option value="ib">不分區/IB</option></select></div>
+      <div><div class="label">排班月份</div>
+        <select id="monthSelect" onchange="onMonthChange()"><option value="2026-02" style="color: rgb(170, 170, 170);">2026年2月（已過）</option><option value="2026-03" style="color: rgb(170, 170, 170);">2026年3月（已過）</option><option value="2026-04">2026年4月</option><option value="2026-05">2026年5月</option><option value="2026-06">2026年6月</option><option value="2026-07">2026年7月</option><option value="2026-08">2026年8月</option><option value="2026-09">2026年9月</option><option value="2026-10">2026年10月</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">每日人力設定</div><div id="minStaffGrid"><div class="sec">最低人力</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px"><div><div class="label" style="text-align:center">週日</div><input type="number" min="0" max="5" value="2" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[0]||0;return;}groups[&#39;japan&#39;].minStaff[0]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週一</div><input type="number" min="0" max="5" value="3" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[1]||0;return;}groups[&#39;japan&#39;].minStaff[1]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週二</div><input type="number" min="0" max="5" value="3" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[2]||0;return;}groups[&#39;japan&#39;].minStaff[2]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週三</div><input type="number" min="0" max="5" value="3" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[3]||0;return;}groups[&#39;japan&#39;].minStaff[3]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週四</div><input type="number" min="0" max="5" value="3" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[4]||0;return;}groups[&#39;japan&#39;].minStaff[4]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週五</div><input type="number" min="0" max="5" value="2" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[5]||0;return;}groups[&#39;japan&#39;].minStaff[5]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週六</div><input type="number" min="0" max="5" value="2" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].minStaff[6]||0;return;}groups[&#39;japan&#39;].minStaff[6]=+this.value||0;saveData()"></div></div></div><div id="maxStaffGrid" style="margin-top:1rem"><div class="sec" style="margin-top:10px">最多人力（0=不限）</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px"><div><div class="label" style="text-align:center">週日</div><input type="number" min="0" max="5" value="2" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[0]||0;return;}groups[&#39;japan&#39;].maxStaff[0]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週一</div><input type="number" min="0" max="5" value="0" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[1]||0;return;}groups[&#39;japan&#39;].maxStaff[1]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週二</div><input type="number" min="0" max="5" value="0" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[2]||0;return;}groups[&#39;japan&#39;].maxStaff[2]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週三</div><input type="number" min="0" max="5" value="0" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[3]||0;return;}groups[&#39;japan&#39;].maxStaff[3]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週四</div><input type="number" min="0" max="5" value="0" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[4]||0;return;}groups[&#39;japan&#39;].maxStaff[4]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週五</div><input type="number" min="0" max="5" value="0" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[5]||0;return;}groups[&#39;japan&#39;].maxStaff[5]=+this.value||0;saveData()"></div><div><div class="label" style="text-align:center">週六</div><input type="number" min="0" max="5" value="2" style="text-align:center" onchange="if(!isLeader()){alert(&#39;需要組長或課長權限&#39;);this.value=groups[&#39;japan&#39;].maxStaff?.[6]||0;return;}groups[&#39;japan&#39;].maxStaff[6]=+this.value||0;saveData()"></div></div><div style="font-size:11px;color:#999;margin-top:6px">組員：5人</div></div></div>
+  <div class="card"><div class="card-title">國定假日人力</div><div class="ai">上班者螢光黃，其他人紅色「國」。</div><div id="holStaffGrid"><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div><div class="sec">最低出勤</div><input type="number" min="0" max="5" value="2" onchange="groups[&#39;japan&#39;].holMin=+this.value||0" style="max-width:100px"></div>
+    <div><div class="sec">最多出勤（0=不限）</div><input type="number" min="0" max="5" value="3" onchange="groups[&#39;japan&#39;].holMax=+this.value||0" style="max-width:100px"></div>
+  </div></div></div>
+  <div class="card">
+    <div class="card-title">本月應休天數調整（跨月借假）</div>
+    <div class="ai">
+      系統依自然週自動計算，可手動覆寫。<br>
+      · 實際休 &lt; 應休 → <strong>最後一週</strong>把「上班」改成休（從<strong>下月</strong>借假進來）<br>
+      · 實際休 &gt; 應休 → <strong>第一週</strong>把「休」改回上班（把假<strong>還給前月</strong>）
+    </div>
+    <div id="monthQuotaGrid"><table class="tbl"><thead><tr><th>組員</th><th>本月應休假</th><th>本月應例假</th></tr></thead>
+    <tbody><tr><td style="font-weight:600">Tanyu</td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02617&#39;,&#39;shouldXiu&#39;,+this.value)"></td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02617&#39;,&#39;shouldLi&#39;,+this.value)"></td>
+    </tr><tr><td style="font-weight:600">Fenny</td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02894&#39;,&#39;shouldXiu&#39;,+this.value)"></td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02894&#39;,&#39;shouldLi&#39;,+this.value)"></td>
+    </tr><tr><td style="font-weight:600">Jamie</td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02917&#39;,&#39;shouldXiu&#39;,+this.value)"></td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02917&#39;,&#39;shouldLi&#39;,+this.value)"></td>
+    </tr><tr><td style="font-weight:600">Dewi</td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02958&#39;,&#39;shouldXiu&#39;,+this.value)"></td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02958&#39;,&#39;shouldLi&#39;,+this.value)"></td>
+    </tr><tr><td style="font-weight:600">Wowpoi</td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02887&#39;,&#39;shouldXiu&#39;,+this.value)"></td>
+      <td><input type="number" min="0" max="10" value="5" style="width:64px;text-align:center" onchange="setMQ(&#39;KK02887&#39;,&#39;shouldLi&#39;,+this.value)"></td>
+    </tr></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-title">國定假日（<span id="monthLabel">5月</span>）</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button class="btn btn-sm btn-primary" id="holTabTW" onclick="switchHolCtry(&#39;tw&#39;)">台灣</button>
+      <button class="btn btn-sm" id="holTabMY" onclick="switchHolCtry(&#39;my&#39;)">馬來西亞-KL</button>
+      <button class="btn btn-sm" id="holTabVN" onclick="switchHolCtry(&#39;vn&#39;)">越南 VN</button>
+    </div>
+    <div class="cal-wrap"><div class="cal-grid" id="holCalHdr"><div class="cal-hdr">日</div><div class="cal-hdr">一</div><div class="cal-hdr">二</div><div class="cal-hdr">三</div><div class="cal-hdr">四</div><div class="cal-hdr">五</div><div class="cal-hdr">六</div></div><div class="cal-grid" id="holCal"><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day is-hol" onclick="togHol(1)">1<span class="day-tag">國</span></div><div class="cal-day " onclick="togHol(2)">2</div><div class="cal-day " onclick="togHol(3)">3</div><div class="cal-day " onclick="togHol(4)">4</div><div class="cal-day " onclick="togHol(5)">5</div><div class="cal-day " onclick="togHol(6)">6</div><div class="cal-day " onclick="togHol(7)">7</div><div class="cal-day " onclick="togHol(8)">8</div><div class="cal-day " onclick="togHol(9)">9</div><div class="cal-day " onclick="togHol(10)">10</div><div class="cal-day " onclick="togHol(11)">11</div><div class="cal-day " onclick="togHol(12)">12</div><div class="cal-day " onclick="togHol(13)">13</div><div class="cal-day " onclick="togHol(14)">14</div><div class="cal-day " onclick="togHol(15)">15</div><div class="cal-day " onclick="togHol(16)">16</div><div class="cal-day " onclick="togHol(17)">17</div><div class="cal-day " onclick="togHol(18)">18</div><div class="cal-day " onclick="togHol(19)">19</div><div class="cal-day " onclick="togHol(20)">20</div><div class="cal-day " onclick="togHol(21)">21</div><div class="cal-day " onclick="togHol(22)">22</div><div class="cal-day " onclick="togHol(23)">23</div><div class="cal-day " onclick="togHol(24)">24</div><div class="cal-day " onclick="togHol(25)">25</div><div class="cal-day " onclick="togHol(26)">26</div><div class="cal-day " onclick="togHol(27)">27</div><div class="cal-day " onclick="togHol(28)">28</div><div class="cal-day " onclick="togHol(29)">29</div><div class="cal-day " onclick="togHol(30)">30</div><div class="cal-day " onclick="togHol(31)">31</div></div></div>
+    <div id="holList" style="margin-top:8px;font-size:12px;color:#666">已設定：1日</div>
+  </div>
+  <div class="card">
+    <div class="card-title">色彩圖例</div>
+    <div class="leg-row">
+      <div class="leg"><div class="leg-sw sc-a"></div>A/C班</div>
+      <div class="leg"><div class="leg-sw sc-e"></div>E班</div>
+      <div class="leg"><div class="leg-sw sc-hol-a"></div>國假出勤</div>
+      <div class="leg"><div class="leg-sw sc-hol-off"></div>國（假日休）</div>
+      <div class="leg"><div class="leg-sw sc-xiu"></div>休（;H）</div>
+      <div class="leg"><div class="leg-sw sc-li"></div>例（;H2）</div>
+      <div class="leg"><div class="leg-sw sc-off"></div>OFF</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goPage(&#39;employees&#39;)">下一步 ↗</button>
+</div>
+
+<!-- 員工 -->
+<div class="page" id="page-employees">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;padding:.5rem .75rem;background:#f8fafc;border-radius:8px;border:1px solid #e5e7eb">
+    <span style="font-size:12px;color:#888;font-weight:500;white-space:nowrap">組別</span>
+    <select id="empGroupSelect" style="font-size:13px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;flex:1;font-weight:600" onchange="cGroup=this.value;renderGroupSelect();refresh()"></select>
+  </div>
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:1rem">
+      <div class="card-title" style="margin:0">員工清單 — <span id="empGroupName">日文組/Japan</span></div>
+      <button class="btn btn-sm" onclick="openAddEmp()">+ 新增員工</button>
+    </div>
+    <div id="empList"><div class="member-row">
+    <div style="display:flex;flex-direction:column;margin-right:4px">
+      <button onclick="moveEmp(0,-1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#ddd" disabled="">▲</button>
+      <button onclick="moveEmp(0,1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▼</button>
+    </div>
+    <div class="avatar ">TA</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">王丹妤 Tanyu</div>
+      <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">KK02617 · tanyu.wang@kkday.com</div></div>
+    <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+      <span class="cp-tw">TW</span>
+      <span class="badge bok">A/E彈排</span>
+      <button class="btn btn-sm" onclick="openEditEmp(0)">編輯</button>
+      <button class="btn btn-sm btn-danger" onclick="removeEmp(0)">移除</button>
+    </div></div><div class="member-row">
+    <div style="display:flex;flex-direction:column;margin-right:4px">
+      <button onclick="moveEmp(1,-1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▲</button>
+      <button onclick="moveEmp(1,1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▼</button>
+    </div>
+    <div class="avatar ">FE</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">張方婷 Fenny</div>
+      <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">KK02894 · fenny.chang@kkday.com</div></div>
+    <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+      <span class="cp-tw">TW</span>
+      <span class="badge bok">A/E彈排</span>
+      <button class="btn btn-sm" onclick="openEditEmp(1)">編輯</button>
+      <button class="btn btn-sm btn-danger" onclick="removeEmp(1)">移除</button>
+    </div></div><div class="member-row">
+    <div style="display:flex;flex-direction:column;margin-right:4px">
+      <button onclick="moveEmp(2,-1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▲</button>
+      <button onclick="moveEmp(2,1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▼</button>
+    </div>
+    <div class="avatar ">JA</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">葉馥禎 Jamie</div>
+      <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">KK02917 · jamie.yeh@kkday.com</div></div>
+    <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+      <span class="cp-tw">TW</span>
+      <span class="badge bok">A/E彈排</span>
+      <button class="btn btn-sm" onclick="openEditEmp(2)">編輯</button>
+      <button class="btn btn-sm btn-danger" onclick="removeEmp(2)">移除</button>
+    </div></div><div class="member-row">
+    <div style="display:flex;flex-direction:column;margin-right:4px">
+      <button onclick="moveEmp(3,-1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▲</button>
+      <button onclick="moveEmp(3,1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▼</button>
+    </div>
+    <div class="avatar ">DE</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">蕭建彬 Dewi</div>
+      <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">KK02958 · dewi.xiao@kkday.com</div></div>
+    <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+      <span class="cp-tw">TW</span>
+      <span class="badge bok">A/E彈排</span>
+      <button class="btn btn-sm" onclick="openEditEmp(3)">編輯</button>
+      <button class="btn btn-sm btn-danger" onclick="removeEmp(3)">移除</button>
+    </div></div><div class="member-row">
+    <div style="display:flex;flex-direction:column;margin-right:4px">
+      <button onclick="moveEmp(4,-1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#888">▲</button>
+      <button onclick="moveEmp(4,1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:#ddd" disabled="">▼</button>
+    </div>
+    <div class="avatar ">WO</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">陳奕廷 Wowpoi</div>
+      <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">KK02887 · wowpoi.chen@kkday.com</div></div>
+    <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+      <span class="cp-tw">TW</span>
+      <span class="badge bok">A/E彈排</span>
+      <button class="btn btn-sm" onclick="openEditEmp(4)">編輯</button>
+      <button class="btn btn-sm btn-danger" onclick="removeEmp(4)">移除</button>
+    </div></div></div>
+  </div>
+  <div class="modal-bg" id="empModal">
+    <div class="modal-box">
+      <div style="font-weight:600;font-size:15px;margin-bottom:1.25rem" id="empModalTitle">新增員工</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="grid2">
+          <div><div class="label">員工編號</div><input type="text" id="eId" placeholder="KK00000"></div>
+          <div><div class="label">英文名稱</div><input type="text" id="eEn" placeholder="Ming"></div>
+        </div>
+        <div><div class="label">中文名稱</div><input type="text" id="eZh" placeholder="王小明"></div>
+        <div><div class="label">Email</div><input type="email" id="eEmail" placeholder="ming@kkday.com"></div>
+        <div class="grid2">
+          <div><div class="label">班別</div><select id="eShift"><option value="AE">A/E彈排</option><option value="A">A班</option><option value="E">E班</option><option value="C">C班</option></select></div>
+          <div><div class="label">適用法規</div><select id="eCtry"><option value="tw">台灣</option><option value="my">馬來西亞</option><option value="vn">越南</option></select></div>
+        </div>
+        <div><div class="label">上月最後連班天數</div><input type="number" id="ePrev" min="0" max="6" value="0"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end">
+        <button class="btn btn-sm" onclick="closeEmpModal()">取消</button>
+        <button class="btn btn-sm btn-primary" onclick="saveEmp()">儲存</button>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goPage(&#39;prefs&#39;)">下一步 ↗</button>
+</div>
+
+<div class="modal-bg" id="groupModal">
+  <div class="modal-box">
+    <div style="font-weight:600;font-size:15px;margin-bottom:1.25rem">新增組別</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><div class="label">組別代碼</div><input type="text" id="gId" placeholder="new_group"></div>
+      <div><div class="label">組別名稱</div><input type="text" id="gName" placeholder="新組別"></div>
+      <div><div class="label">班別類型</div><select id="gShiftType"><option value="AE">A/E彈排（白班）</option><option value="C">C班（夜班）</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end">
+      <button class="btn btn-sm" onclick="closeGroupModal()">取消</button>
+      <button class="btn btn-sm btn-primary" onclick="saveGroup()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- 偏好 -->
+<div class="page" id="page-prefs">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:.75rem">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="card-title" style="margin:0">組員偏好 — <span id="prefGroupName">日文組/Japan</span></div>
+        <button id="prefClosedBtn" class="btn btn-sm" onclick="togglePrefClosed(cMonth)" style="display: none; font-size: 12px; padding: 3px 10px; background: rgb(254, 226, 226); color: rgb(185, 28, 28); border-color: rgb(252, 165, 165);">關閉偏好選擇</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;white-space:nowrap">
+        <span style="font-size:12px;color:#666">月份：</span>
+        <select id="prefMonthSelect" style="font-size:12px;padding:3px 6px;border:1px solid #e5e7eb;border-radius:5px" onchange="cMonth=this.value;initPrefs();initMonthQuota();renderPrefCal();renderPrefSummary();"><option value="2026-02">2026年2月</option><option value="2026-03">2026年3月</option><option value="2026-04">2026年4月</option><option value="2026-05">2026年5月</option><option value="2026-06">2026年6月</option><option value="2026-07">2026年7月</option><option value="2026-08">2026年8月</option><option value="2026-09">2026年9月</option><option value="2026-10">2026年10月</option></select>
+      </div>
+    </div>
+    <div id="memberTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem"><button class="btn btn-sm btn-primary" onclick="selMember(0)">Tanyu</button><button class="btn btn-sm " onclick="selMember(1)">Fenny</button><button class="btn btn-sm " onclick="selMember(2)">Jamie</button><button class="btn btn-sm " onclick="selMember(3)">Dewi</button><button class="btn btn-sm " onclick="selMember(4)">Wowpoi</button></div>
+    <div id="memberInfo" style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #eee"><div class="flex-between"><div class="flex">
+    <div class="avatar ">TA</div>
+    <div><div style="font-size:13px;font-weight:600">王丹妤 Tanyu <span class="cp-tw" style="margin-left:4px">TW</span></div>
+    <div style="font-size:11px;color:#666">首要希望 0/4 · 希望休 0/4</div></div></div></div></div>
+    <div id="prefClosedBanner" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;color:#b91c1c;font-size:13px;font-weight:500">
+      ⚠ 已關閉選擇，排班進行中，需要調整請找組長哦～
+    </div>
+    <div style="font-size:12px;color:#666;margin-bottom:8px;line-height:1.8">
+      點日期：第1–4次=<span style="background:#b5d4f4;color:#042c53;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600">首要希望</span>　
+      第5–8次=<span style="background:#ccc8f0;color:#26215c;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600">希望休</span>（人力足才給，否則OFF）　再點=取消
+    </div>
+    <div class="cal-wrap"><div class="cal-grid" id="prefHdr"><div class="cal-hdr">日</div><div class="cal-hdr">一</div><div class="cal-hdr">二</div><div class="cal-hdr">三</div><div class="cal-hdr">四</div><div class="cal-hdr">五</div><div class="cal-hdr">六</div></div><div class="cal-grid" id="prefCal" style="pointer-events: none; opacity: 0.7;"><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day is-hol" onclick="togPref(1)">1<span class="day-tag">國</span></div><div class="cal-day" onclick="togPref(2)">2</div><div class="cal-day" onclick="togPref(3)">3</div><div class="cal-day" onclick="togPref(4)">4</div><div class="cal-day" onclick="togPref(5)">5</div><div class="cal-day" onclick="togPref(6)">6</div><div class="cal-day" onclick="togPref(7)">7</div><div class="cal-day" onclick="togPref(8)">8</div><div class="cal-day" onclick="togPref(9)">9</div><div class="cal-day" onclick="togPref(10)">10</div><div class="cal-day" onclick="togPref(11)">11</div><div class="cal-day" onclick="togPref(12)">12</div><div class="cal-day" onclick="togPref(13)">13</div><div class="cal-day" onclick="togPref(14)">14</div><div class="cal-day" onclick="togPref(15)">15</div><div class="cal-day" onclick="togPref(16)">16</div><div class="cal-day" onclick="togPref(17)">17</div><div class="cal-day" onclick="togPref(18)">18</div><div class="cal-day" onclick="togPref(19)">19</div><div class="cal-day" onclick="togPref(20)">20</div><div class="cal-day" onclick="togPref(21)">21</div><div class="cal-day" onclick="togPref(22)">22</div><div class="cal-day" onclick="togPref(23)">23</div><div class="cal-day" onclick="togPref(24)">24</div><div class="cal-day" onclick="togPref(25)">25</div><div class="cal-day" onclick="togPref(26)">26</div><div class="cal-day" onclick="togPref(27)">27</div><div class="cal-day" onclick="togPref(28)">28</div><div class="cal-day" onclick="togPref(29)">29</div><div class="cal-day" onclick="togPref(30)">30</div><div class="cal-day" onclick="togPref(31)">31</div></div></div>
+    <div style="margin-top:8px;font-size:12px;color:#666" id="prefCount">尚未選擇</div>
+  </div>
+  <div class="card" id="workPrefCard" style="display: none;">
+    <div class="card-title">想上班日期</div>
+    <div style="font-size:12px;color:#666;margin-bottom:8px">點日期選 A 或 E 班，排班時優先保留這些天上班。再點切換，長按取消。</div>
+    <div class="cal-wrap"><div class="cal-grid" id="workPrefHdr"><div class="cal-hdr">日</div><div class="cal-hdr">一</div><div class="cal-hdr">二</div><div class="cal-hdr">三</div><div class="cal-hdr">四</div><div class="cal-hdr">五</div><div class="cal-hdr">六</div></div><div class="cal-grid" id="workPrefCal" style="pointer-events: none; opacity: 0.7;"><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day" onclick="togWorkPref(1)" title="點擊切換A/E，再點取消">1</div><div class="cal-day" onclick="togWorkPref(2)" title="點擊切換A/E，再點取消">2</div><div class="cal-day" onclick="togWorkPref(3)" title="點擊切換A/E，再點取消">3</div><div class="cal-day" onclick="togWorkPref(4)" title="點擊切換A/E，再點取消">4</div><div class="cal-day" onclick="togWorkPref(5)" title="點擊切換A/E，再點取消">5</div><div class="cal-day" onclick="togWorkPref(6)" title="點擊切換A/E，再點取消">6</div><div class="cal-day" onclick="togWorkPref(7)" title="點擊切換A/E，再點取消">7</div><div class="cal-day" onclick="togWorkPref(8)" title="點擊切換A/E，再點取消">8</div><div class="cal-day" onclick="togWorkPref(9)" title="點擊切換A/E，再點取消">9</div><div class="cal-day" onclick="togWorkPref(10)" title="點擊切換A/E，再點取消">10</div><div class="cal-day" onclick="togWorkPref(11)" title="點擊切換A/E，再點取消">11</div><div class="cal-day" onclick="togWorkPref(12)" title="點擊切換A/E，再點取消">12</div><div class="cal-day" onclick="togWorkPref(13)" title="點擊切換A/E，再點取消">13</div><div class="cal-day" onclick="togWorkPref(14)" title="點擊切換A/E，再點取消">14</div><div class="cal-day" onclick="togWorkPref(15)" title="點擊切換A/E，再點取消">15</div><div class="cal-day" onclick="togWorkPref(16)" title="點擊切換A/E，再點取消">16</div><div class="cal-day" onclick="togWorkPref(17)" title="點擊切換A/E，再點取消">17</div><div class="cal-day" onclick="togWorkPref(18)" title="點擊切換A/E，再點取消">18</div><div class="cal-day" onclick="togWorkPref(19)" title="點擊切換A/E，再點取消">19</div><div class="cal-day" onclick="togWorkPref(20)" title="點擊切換A/E，再點取消">20</div><div class="cal-day" onclick="togWorkPref(21)" title="點擊切換A/E，再點取消">21</div><div class="cal-day" onclick="togWorkPref(22)" title="點擊切換A/E，再點取消">22</div><div class="cal-day" onclick="togWorkPref(23)" title="點擊切換A/E，再點取消">23</div><div class="cal-day" onclick="togWorkPref(24)" title="點擊切換A/E，再點取消">24</div><div class="cal-day" onclick="togWorkPref(25)" title="點擊切換A/E，再點取消">25</div><div class="cal-day" onclick="togWorkPref(26)" title="點擊切換A/E，再點取消">26</div><div class="cal-day" onclick="togWorkPref(27)" title="點擊切換A/E，再點取消">27</div><div class="cal-day" onclick="togWorkPref(28)" title="點擊切換A/E，再點取消">28</div><div class="cal-day" onclick="togWorkPref(29)" title="點擊切換A/E，再點取消">29</div><div class="cal-day" onclick="togWorkPref(30)" title="點擊切換A/E，再點取消">30</div><div class="cal-day" onclick="togWorkPref(31)" title="點擊切換A/E，再點取消">31</div></div></div>
+    <div style="margin-top:8px;font-size:12px;color:#666" id="workPrefCount">尚未選擇</div>
+  </div>
+  <div class="card" id="prefNoteCard" style="display: none;">
+    <div class="card-title">備註</div>
+    <textarea id="prefNote" style="width: 100%; min-height: 72px; font-size: 13px; padding: 8px 10px; border: 1px solid rgb(221, 221, 221); border-radius: 7px; resize: vertical; font-family: inherit; background: rgb(249, 250, 251);" placeholder="例：5月中旬需要早班、6月初有出差..." oninput="savePrefNote()" readonly=""></textarea>
+  </div>
+</div>
+
+<!-- 排班結果 -->
+<div class="page" id="page-result">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:.5rem;flex-wrap:wrap">
+    <select id="resultGroupSelect" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;display:none" onchange="cGroup=this.value;renderGroupSelect();refresh()"></select>
+    <select id="resultMonthSelect" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px" onchange="cMonth=this.value;initPrefs();initMonthQuota();refresh()"></select>
+  </div>
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:1rem">
+      <div class="card-title" style="margin:0">排班結果 — <span id="resultName"></span></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="applyQuotaAdj()">套用跨月調整</button>
+        <button class="btn btn-sm" onclick="exportCSV()">CSV</button>
+
+      </div>
+    </div>
+    <div class="leg-row">
+      <div class="leg"><div class="leg-sw sc-a"></div>A/C</div><div class="leg"><div class="leg-sw sc-e"></div>E</div>
+      <div class="leg"><div class="leg-sw sc-hol-a"></div>國假出勤</div><div class="leg"><div class="leg-sw sc-hol-off"></div>國</div>
+      <div class="leg"><div class="leg-sw sc-xiu"></div>休</div><div class="leg"><div class="leg-sw sc-li"></div>例</div>
+      <div class="leg"><div class="leg-sw sc-off"></div>OFF</div>
+      <span style="font-size:11px;color:#999">點格子可編輯</span>
+    </div>
+    <div class="grid3" id="resultStats" style="margin-bottom:1rem"></div>
+    <div id="schedWarnings" style="margin-bottom:.5rem"></div>
+    <div id="resultTable" style="overflow-x:auto"></div>
+  </div>
+  <div class="card"><div class="card-title">本月休假配額</div><div id="quotaTable"></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="goPage(&#39;overtime&#39;)">加班費</button>
+  </div>
+  <!-- 複查按鈕 -->
+  <div style="margin-top:1rem">
+    <button class="btn btn-sm" onclick="showReview()" style="background:#f0f9ff;color:#0369a1;border-color:#7dd3fc">🔍 複查偏好符合度</button>
+  </div>
+  <div id="reviewResult" style="margin-top:.5rem"></div>
+
+  <!-- 調整記錄 -->
+  <div class="card" style="margin-top:1rem">
+    <div class="card-title">調整記錄</div>
+    <div id="adjustLog" style="font-size:12px;color:#666;max-height:180px;overflow-y:auto">尚無調整</div>
+  </div>
+  <!-- 確定班表 -->
+  <div id="lockBannerWrap" style="margin-top:1rem"></div>
+  <!-- 匯出 -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem">
+    <button class="btn btn-primary" onclick="exportExcelCode()">匯出結果（匯入飛騰用）</button>
+    <button class="btn btn-primary" onclick="exportExcelDisplay()">匯出結果（放入班表用）</button>
+    <button class="btn btn-sm" onclick="exportOT()">匯出加班費 CSV</button>
+    <button id="lockSchedBtn" class="btn btn-sm" onclick="toggleLockSched()" style="display:none">確定班表</button>
+  </div>
+</div>
+
+<!-- 加班費 -->
+<div class="page" id="page-overtime">
+  <div id="myOtRule" class="ai" style="display:none;margin-bottom:.75rem">
+    🇲🇾 <strong>馬來西亞組員國定假日規則：</strong>
+    有上班 → 可申請補休1天 / 加班費｜
+    加班超出正常工時 → 可申請加班費｜
+    假日遇週日 → 隔天週一自動為補休日｜
+    假日遇週六 → 可申請補休1天
+  </div>
+  <div class="card"><div class="card-title">加班清單</div>
+    <div class="ai">台灣：可申請補休1天 / 加班費。馬來西亞：可申請補休1天 / 加班費（假日遇週末可另申請補休）。</div>
+    <div id="otReport"></div></div>
+  <div class="card"><div class="card-title">每日出勤統計</div><div id="otDaySummary"></div></div>
+  <button class="btn btn-sm" onclick="exportOT()">匯出加班費 CSV</button>
+</div>
+
+
+
+
+<!-- 需求結果 -->
+<div class="page" id="page-demand">
+  <div class="card">
+    <div style="margin-bottom:.75rem">
+      <div class="flex-between" style="margin-bottom:.5rem">
+        <div class="card-title" style="margin:0">需求結果 <span id="demandMonthLabel" style="font-size:13px;color:#666;font-weight:400"></span></div>
+        <button class="btn btn-primary btn-sm" onclick="runSchedule()" style="font-size:12px;padding:5px 14px">執行自動排班 ↗</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="demandGroupSelect" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;display:none" onchange="cGroup=this.value;renderGroupSelect();refresh();renderDemand()"></select>
+        <select id="demandMonthSelect" style="font-size:12px;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px" onchange="cMonth=this.value;initPrefs();initMonthQuota();renderDemand()"></select>
+      </div>
+    </div>
+    <div class="ai">🔴首要希望休　🟠希望休　🟢想上班（E/A）　灰底=休假需求超出可排名額（需協調）</div>
+    <div id="demandTable" style="overflow-x:auto;margin-top:.5rem"></div>
+  </div>
+  <div class="card" style="margin-top:1rem">
+    <div class="card-title">偏好摘要</div>
+    <div id="prefSummary"><table class="tbl"><thead><tr><th>組員</th><th>法規</th><th>首要希望</th><th>希望休</th><th>想上班日</th><th>備註</th></tr></thead>
+    <tbody><tr><td style="font-weight:600">Tanyu</td><td><span class="cp-tw">TW</span></td>
+        <td>—</td>
+        <td style="color:#666">—</td>
+        <td style="color:#27500a">—</td>
+        <td style="color:#444;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</td></tr><tr><td style="font-weight:600">Fenny</td><td><span class="cp-tw">TW</span></td>
+        <td>—</td>
+        <td style="color:#666">—</td>
+        <td style="color:#27500a">—</td>
+        <td style="color:#444;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</td></tr><tr><td style="font-weight:600">Jamie</td><td><span class="cp-tw">TW</span></td>
+        <td>—</td>
+        <td style="color:#666">—</td>
+        <td style="color:#27500a">—</td>
+        <td style="color:#444;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</td></tr><tr><td style="font-weight:600">Dewi</td><td><span class="cp-tw">TW</span></td>
+        <td>—</td>
+        <td style="color:#666">—</td>
+        <td style="color:#27500a">—</td>
+        <td style="color:#444;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</td></tr><tr><td style="font-weight:600">Wowpoi</td><td><span class="cp-tw">TW</span></td>
+        <td>—</td>
+        <td style="color:#666">—</td>
+        <td style="color:#27500a">—</td>
+        <td style="color:#444;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</td></tr></tbody></table></div>
+  </div>
+  <div class="card" style="margin-top:1rem">
+    <div class="card-title">備註欄</div>
+    <div id="demandNotes" style="font-size:13px"></div>
+  </div>
+</div>
+
+<!-- 權限管理 -->
+<div class="page" id="page-perms">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:1rem">
+      <div class="card-title" style="margin:0">權限管理</div>
+      <button class="btn btn-primary btn-sm" onclick="openPermModal()">+ 新增帳號</button>
+    </div>
+    <div class="ai">管理可登入的帳號與權限。登入 email 格式：專員=本人email、組長=teamlead+email、課長=scmsection1/2+email</div>
+    <div id="permTable" style="margin-top:.75rem"></div>
+  </div>
+</div>
+
+<!-- 權限編輯 Modal -->
+<div id="permModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:1.5rem;width:420px;max-width:92vw">
+    <div style="font-weight:700;font-size:15px;margin-bottom:1rem" id="permModalTitle">新增帳號</div>
+    <div style="display:grid;gap:.75rem">
+      <div>
+        <div class="label">員工編號</div>
+        <input id="pmId" type="text" placeholder="KK02617" style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <div class="label">中文名稱</div>
+        <input id="pmZh" type="text" placeholder="王丹妤" style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <div class="label">英文名稱</div>
+        <input id="pmEn" type="text" placeholder="Tanyu" style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <div class="label">Email（專員填本人 email）</div>
+        <input id="pmEmail" type="email" placeholder="tanyu.wang@kkday.com" style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <div class="label">國籍</div>
+        <select id="pmCountry" style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px">
+          <option value="tw">台灣 TW</option>
+          <option value="my">馬來西亞 MY</option>
+          <option value="vn">越南 VN</option>
+        </select>
+      </div>
+      <div>
+        <div class="label">權限</div>
+        <select id="pmRole" style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px">
+          <option value="專員">專員（登入：本人 email）</option>
+          <option value="組長">組長（登入：teamlead + email）</option>
+          <option value="課長">課長（登入：scmsection1/2 + email）</option>
+        </select>
+      </div>
+      <div id="pmLoginHint" style="font-size:12px;color:#6366f1;background:#f5f3ff;border-radius:6px;padding:8px 10px"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end">
+      <button class="btn" onclick="closePermModal()">取消</button>
+      <button class="btn btn-primary" onclick="savePerm()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div id="cellMenu" class="cell-menu" style="display:none"></div>
+
+<script>
+const MONTH_META={
+  '2026-01':{label:'1月',days:31,startDow:4},
+  '2026-02':{label:'2月',days:28,startDow:0},
+  '2026-03':{label:'3月',days:31,startDow:0},
+  '2026-04':{label:'4月',days:30,startDow:3},
+  '2026-05':{label:'5月',days:31,startDow:5},
+  '2026-06':{label:'6月',days:30,startDow:1},
+  '2026-07':{label:'7月',days:31,startDow:3},
+  '2026-08':{label:'8月',days:31,startDow:6},
+  '2026-09':{label:'9月',days:30,startDow:2},
+  '2026-10':{label:'10月',days:31,startDow:4},
+  '2026-11':{label:'11月',days:30,startDow:0},
+  '2026-12':{label:'12月',days:31,startDow:2}
+};
+const DEF_HOLS={
+  tw:{'2026-01':[1],'2026-02':[28],'2026-03':[],'2026-04':[3,4],'2026-05':[1],'2026-06':[],'2026-07':[],'2026-08':[],'2026-09':[],'2026-10':[],'2026-11':[],'2026-12':[]},
+  vn:{'2026-01':[1],'2026-02':[6,7,8,9,10],'2026-03':[],'2026-04':[30],'2026-05':[1],'2026-06':[],'2026-07':[],'2026-08':[],'2026-09':[2],'2026-10':[],'2026-11':[],'2026-12':[]},
+  my:{'2026-01':[1],'2026-02':[1],'2026-03':[7,20,23],'2026-04':[],'2026-05':[1,27,31],'2026-06':[1,2,17],'2026-07':[],'2026-08':[25,31],'2026-09':[16],'2026-10':[],'2026-11':[8],'2026-12':[25]}
+};
+const DOWSTR=['日','一','二','三','四','五','六'];
+const EXCEL_CODE={'A':'OP-B','C':'OP-C','E':'OP-A','HOL_A':'OP-B','HOL_E':'OP-A','HOL_C':'OP-C','休':';H','例':';H2','HOL_OFF':';H4','OFF':'OP-B'};
+const DISPLAY_CODE={'A':'上班','C':'上班(夜)','E':'E班','HOL_A':'國定上班','HOL_E':'國定E班','HOL_C':'國定上班(夜)','HOL_OFF':'國定假日','休':'休假','例':'例假','OFF':'OFF'};
+
+let groups={
+  japan:{name:'日文組/Japan',shiftTypes:['A','E'],minStaff:{0:2,1:3,2:3,3:3,4:3,5:2,6:2},maxStaff:{0:2,1:0,2:0,3:0,4:0,5:0,6:2},holMin:2,holMax:3,members:[
+    {id:'KK02617',zh:'王丹妤',en:'Tanyu',email:'tanyu.wang@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02894',zh:'張方婷',en:'Fenny',email:'fenny.chang@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02917',zh:'葉馥禎',en:'Jamie',email:'jamie.yeh@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02958',zh:'蕭建彬',en:'Dewi',email:'dewi.xiao@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02887',zh:'陳奕廷',en:'Wowpoi',email:'wowpoi.chen@kkday.com',shift:'AE',country:'tw',prev:0}]},
+  tw_payment:{name:'台灣帳務(高鐵假期)/TW Payment+KHSR',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK00518',zh:'林明潔',en:'Jessica',email:'jessica.lin@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK00030',zh:'謝宛育',en:'Cindy',email:'cindy.hsieh@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK01695',zh:'覃曼琪',en:'Josy',email:'josy.chin@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02653',zh:'張濬丞',en:'Cheng',email:'cheng.chang@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02695',zh:'王惜妃',en:'Sophia',email:'sophia.wang@kkday.com',shift:'AE',country:'tw',prev:0}]},
+  tw_order:{name:'台灣訂單/TW Order',shiftTypes:['A','E'],minStaff:{0:2,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK02144',zh:'李芷樂',en:'Shelmi',email:'shelmi.lee@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK02759',zh:'葉健達',en:'Jd',email:'jd.yap@kkday.com',shift:'AE',country:'my',prev:0}]},
+  night:{name:'夜班/Night TW',shiftTypes:['C'],minStaff:{0:1,1:1,2:1,3:1,4:1,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:1,members:[
+    {id:'KK00062',zh:'周皓茵',en:'Angela',email:'angela.chou@kkday.com',shift:'C',country:'tw',prev:0},
+    {id:'KK00090',zh:'游雅伊',en:'Eva',email:'eva.you@kkday.com',shift:'C',country:'tw',prev:0},
+    {id:'KK02145',zh:'朱慧苘',en:'Stephanie',email:'stephanie.choo@kkday.com',shift:'C',country:'my',prev:0}]},
+  longhaul:{name:'長線/Long-haul',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK02657',zh:'张思媚',en:'Michele',email:'michele.tiu@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK03059',zh:'王翊涵',en:'YihHon',email:'yihhon.ong@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK03068',zh:'郑嘉雯',en:'Carmen',email:'carmen.cheng@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK02739',zh:'叶柔梃',en:'Jenny',email:'jenny.yap@kkday.com',shift:'AE',country:'my',prev:0}]},
+  sea:{name:'東南亞+Vietnam/SEA+VN',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK02674',zh:'Ngoc Luu',en:'Maya',email:'maya.luu@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'PP00771',zh:'謝佳芯',en:'Casey',email:'casey.hsieh@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK02696',zh:'Van Nguyen',en:'Mia',email:'mia.nguyen@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK03030',zh:'鍾詠芯',en:'Sharon',email:'sharon.choong@kkday.com',shift:'AE',country:'my',prev:0}]},
+  night_en:{name:'英文夜班/Night EN',shiftTypes:['C'],minStaff:{0:1,1:1,2:1,3:1,4:1,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:1,members:[
+    {id:'KK02586',zh:'黄玮琪',en:'Vicky',email:'vicky.wong@kkday.com',shift:'C',country:'my',prev:0},
+    {id:'PP00431',zh:'林依儒',en:'Lainey',email:'lainey.lin@kkday.com',shift:'C',country:'tw',prev:0}]},
+  en_rec:{name:'英文對帳/EN Reconcile',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK00778',zh:'蔡宜珊',en:'Sammi',email:'sammi.tsai@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02166',zh:'林素幼',en:'Jes',email:'jes.lim@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02984',zh:'余家瑞',en:'Jerry',email:'jerry.yu@kkday.com',shift:'AE',country:'tw',prev:0}]},
+  korea:{name:'韓文/Korea',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK02365',zh:'林意涓',en:'Yichuan',email:'yichuan.lin@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02552',zh:'陳珮姞',en:'Peggy',email:'peggy.chen@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02753',zh:'盧琬諭',en:'Haley',email:'haley.lu@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02754',zh:'李維',en:'Miva',email:'miva.lee@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02788',zh:'高巧燕',en:'Wendy',email:'wendy.kao@kkday.com',shift:'AE',country:'tw',prev:0}]},
+  hk:{name:'香港+中國/HK+China',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK00516',zh:'曾婉瑜',en:'Winnie',email:'winnie.tseng@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02414',zh:'邱榕琪',en:'Krystal',email:'krystal.yau@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02034',zh:'刘妍慧',en:'Amelie',email:'amelie.lau@kkday.com',shift:'AE',country:'my',prev:0},
+    {id:'KK02994',zh:'譚翠敏',en:'Emily',email:'emily.tam@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'PP00713',zh:'吳玫蓁',en:'Wendy2',email:'wendy.wu@kkday.com',shift:'AE',country:'tw',prev:0}]},
+  ib:{name:'不分區/IB',shiftTypes:['A','E'],minStaff:{0:1,1:2,2:2,3:2,4:2,5:1,6:1},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[
+    {id:'KK01399',zh:'陳逸紘',en:'Hank',email:'hank.chen@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02151',zh:'張寧庭',en:'Vivi',email:'vivi.chang@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02202',zh:'陳彥伶',en:'Lina',email:'lina.chen@kkday.com',shift:'AE',country:'tw',prev:0},
+    {id:'KK02094',zh:'陳博宏',en:'Eric',email:'eric.chen@kkday.com',shift:'AE',country:'tw',prev:0}]}
+};
+
+let annualData={},monthQuota={};
+let cGroup='japan',cMonth='2026-05',cMIdx=0;
+let mPrefs={},cHols={},holCtry='tw';
+let sched={},adjLogs=[],editIdx=null,reviewHalf=1;
+let permList=null;
+
+// ── 確定班表系統 ──
+function getLockedMonths(){
+  try{return JSON.parse(localStorage.getItem('kkday_scm_locked')||'[]');}catch(e){return[];}
+}
+function isMonthLocked(mo){return getLockedMonths().includes(mo||cMonth);}
+function lockMonth(mo){
+  const list=getLockedMonths();
+  if(!list.includes(mo))list.push(mo);
+  localStorage.setItem('kkday_scm_locked',JSON.stringify(list));
+  // Also save to API
+  if(_token)apiPost('saveLocked',list).catch(e=>console.warn(e));
+}
+function unlockMonth(mo){
+  const list=getLockedMonths().filter(m=>m!==mo);
+  localStorage.setItem('kkday_scm_locked',JSON.stringify(list));
+  if(_token)apiPost('saveLocked',list).catch(e=>console.warn(e));
+}
+// ── 關閉偏好系統 ──
+function getPrefClosedMonths(){
+  try{return JSON.parse(localStorage.getItem('kkday_scm_pref_closed')||'[]');}catch(e){return[];}
+}
+function isPrefClosed(mo){return getPrefClosedMonths().includes(mo||cMonth);}
+function togglePrefClosed(mo){
+  const list=getPrefClosedMonths();
+  const idx=list.indexOf(mo);
+  if(idx>=0)list.splice(idx,1);
+  else list.push(mo);
+  localStorage.setItem('kkday_scm_pref_closed',JSON.stringify(list));
+  if(_token)apiPost('savePrefClosed',list).catch(e=>console.warn(e));
+  renderPrefCal();renderPrefSummary();
+  renderPrefClosedBtn();
+}
+function renderPrefClosedBtn(){
+  const btn=document.getElementById('prefClosedBtn');
+  if(!btn)return;
+  const closed=isPrefClosed(cMonth);
+  btn.textContent=closed?'開放偏好選擇':'關閉偏好選擇';
+  btn.style.background=closed?'#dcfce7':'#fee2e2';
+  btn.style.color=closed?'#166534':'#b91c1c';
+  btn.style.borderColor=closed?'#86efac':'#fca5a5';
+}
+
+// ── 後端 API ──
+const API_URL = 'https://script.google.com/macros/s/AKfycbxJNnsxJ9x-A6EZr4e5ExkXU_OuC_-s1zsTPIcxn65v3IVNPd1FZJdMEKZhLvLJCaJgnw/exec';
+let _token = null; // Google OAuth token
+
+async function apiGet(action) {
+  const url=`${API_URL}?action=${action}&token=${encodeURIComponent(_token)}`;
+  const res = await fetch(url, {redirect:'follow'});
+  const text = await res.text();
+  try{return JSON.parse(text);}catch(e){console.warn('apiGet parse error:',text.slice(0,200));throw e;}
+}
+
+async function apiPost(action, data) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action, token:_token, data}),
+    redirect: 'follow'
+  });
+  const text = await res.text();
+  try{return JSON.parse(text);}catch(e){console.warn('apiPost parse error:',text.slice(0,200));throw e;}
+}
+
+// ── 權限系統 ──
+let currentUser = null;
+
+function getRole(){return currentUser?.role||null;}
+function isCourse(){return getRole()==='課長';}
+function isLeader(){return getRole()==='組長'||isCourse();}
+
+function getUserGroup(){
+  if(!currentUser)return null;
+  if(isLeader())return null;
+  // Search all groups for this member
+  for(const [gid,g] of Object.entries(groups)){
+    if(g.members&&g.members.some(m=>m.id===currentUser.id))return gid;
+  }
+  // Fallback: search by email
+  for(const [gid,g] of Object.entries(groups)){
+    if(g.members&&g.members.some(m=>m.email&&m.email.toLowerCase()===currentUser.email))return gid;
+  }
+  console.warn('getUserGroup: member not found in any group', currentUser.id, currentUser.email);
+  return null;
+}
+
+function applyPermissions(){
+  if(!currentUser)return;
+  const role=getRole();
+  const tabs={setup:isLeader(),employees:isCourse(),prefs:true,demand:true,result:isLeader(),overtime:isLeader(),perms:isCourse()};
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    const page=btn.getAttribute('onclick')?.match(/goPage\('(\w+)'\)/)?.[1];
+    if(page&&tabs[page]===false)btn.style.display='none';
+    else if(page==='perms')btn.style.display=isCourse()?'':'none';
+    else btn.style.display='';
+  });
+  const ui=document.getElementById('userInfo');
+  if(ui)ui.innerHTML=`<span style="font-size:12px;color:#666">${currentUser.en} <span class="badge ${role==='課長'?'bok':role==='組長'?'bwarn':'berr'}" style="font-size:10px">${role}</span></span> <button class="btn btn-sm" style="font-size:11px;padding:2px 8px" onclick="logout()">登出</button>`;
+  if(role==='專員'){
+    const gid=getUserGroup();
+    if(gid){cGroup=gid;renderGroupSelect();}
+    document.getElementById('groupSelect').disabled=true;
+    document.getElementById('monthSelect').disabled=true;
+  }
+  const setupCard=document.querySelector('#page-setup');
+  const empCard=document.querySelector('#page-employees');
+  if(setupCard)setupCard.style.pointerEvents=isLeader()?'':'none';
+  if(empCard)empCard.style.pointerEvents=isCourse()?'':'none';
+}
+
+function logout(){
+  currentUser=null;_token=null;
+  localStorage.removeItem('kkday_scm_login');
+  showLogin();
+}
+
+function showLogin(){
+  document.getElementById('appWrap').style.display='none';
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('loginError').textContent='';
+}
+
+// Google OAuth2 - implicit flow via popup
+const GOOGLE_CLIENT_ID='208441001754-heqvph03a21490f5ec0jluvi848cbs2r.apps.googleusercontent.com';
+const REDIRECT_URI='https://bespoke-gumdrop-7043dd.netlify.app';
+
+function doGoogleLogin(){
+  const params=new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: 'https://bespoke-gumdrop-7043dd.netlify.app',
+    response_type: 'token',
+    scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid',
+    hd: 'kkday.com',
+    prompt: 'select_account'
+  });
+  const authUrl='https://accounts.google.com/o/oauth2/v2/auth?'+params.toString();
+  // Open in same window - will redirect back with token in hash
+  window.location.href=authUrl;
+}
+
+async function checkOAuthRedirect(){
+  const hash=window.location.hash;
+  if(!hash.includes('access_token'))return false;
+  const params=new URLSearchParams(hash.slice(1));
+  const token=params.get('access_token');
+  if(!token)return false;
+  window.history.replaceState(null,'',window.location.pathname);
+  _token=token;
+  localStorage.setItem('kkday_scm_login',token);
+  // Show loading
+  const lw=document.getElementById('loginWrap');
+  const ll=document.getElementById('loginLoading');
+  if(lw)lw.style.display='flex';
+  if(ll)ll.style.display='block';
+  await loadFromAPI();
+  return true;
+}
+
+async function onGoogleSignIn(r){}
+function initGoogleSignIn(){}
+
+
+function initGoogleSignIn(){}  // no longer needed
+
+async function loadFromAPI(emailHint){
+  try{
+    const data = await apiGet('getAll');
+    if(data.error){
+      document.getElementById('loginError').textContent=data.error;
+      document.getElementById('loginLoading').style.display='none';
+      _token=null;
+      return;
+    }
+    // Load all data from API - API is source of truth
+    currentUser={email:data.email, role:data.role, ...((data.perms||[]).find(p=>p.email===data.email)||{en:data.email,zh:'',id:'',country:'tw'})};
+    
+    // Load groups (API wins - replace entirely if API has data)
+    if(data.groups&&Object.keys(data.groups).length){
+      // Clear existing and replace with API data
+      Object.keys(groups).forEach(k=>delete groups[k]);
+      Object.assign(groups,data.groups);
+    }
+    // Load prefs (API wins - deep merge to preserve all members' data)
+    if(data.prefs){
+      // Deep merge: API data takes priority
+      for(const [mid,monthData] of Object.entries(data.prefs)){
+        if(!mPrefs[mid])mPrefs[mid]={};
+        for(const [mo,pd] of Object.entries(monthData)){
+          mPrefs[mid][mo]=pd;
+        }
+      }
+    }
+    // Load quota (API wins)
+    if(data.quota)monthQuota=data.quota;
+    // Load sched (API wins)
+    if(data.sched&&Object.keys(data.sched).length)sched=data.sched;
+    // Load adjlog (API wins)
+    if(data.adjlog&&data.adjlog.length)adjLogs=data.adjlog;
+    // Load perms into permList
+    if(data.perms)permList=data.perms;
+
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('appWrap').style.display='';
+    _dataLoaded=true; // Mark data as loaded - safe to save now
+    applyPermissions();
+
+    if(currentUser.role==='專員'){
+      const gid=getUserGroup();
+      console.log('專員 getUserGroup:', gid, 'id:', currentUser.id, 'email:', currentUser.email);
+      if(gid){
+        cGroup=gid;
+        const idx=groups[gid]?.members.findIndex(m=>m.id===currentUser.id);
+        console.log('member idx in group:', idx, 'members:', groups[gid]?.members.map(m=>m.id));
+        if(idx>=0)cMIdx=idx;
+        else{
+          // Try by email
+          const idxByEmail=groups[gid]?.members.findIndex(m=>m.email&&m.email.toLowerCase()===currentUser.email);
+          if(idxByEmail>=0){
+            cMIdx=idxByEmail;
+            // Update currentUser.id to match
+            currentUser.id=groups[gid].members[idxByEmail].id;
+            console.log('Found by email, id updated to:', currentUser.id);
+          }
+        }
+      }
+      // Init prefs for this member
+      if(!mPrefs[currentUser.id])mPrefs[currentUser.id]={};
+      if(!mPrefs[currentUser.id][cMonth])mPrefs[currentUser.id][cMonth]={sure:[],wish:[],workDays:{},note:''};
+      refresh();goPage('prefs');
+    }else{
+      refresh();goPage('setup');
+    }
+  }catch(e){
+    document.getElementById('loginError').textContent='';
+    document.getElementById('loginLoading').style.display='none';
+    _token=null;
+    localStorage.removeItem('kkday_scm_login');
+    showLogin();
+  }
+}
+
+// LocalStorage fallback read
+function loadData(){
+  try{
+    const g=localStorage.getItem('kkday_scm_groups');
+    if(g){const parsed=JSON.parse(g);Object.assign(groups,parsed);}
+    const p=localStorage.getItem('kkday_scm_prefs');
+    if(p)mPrefs=JSON.parse(p);
+    const q=localStorage.getItem('kkday_scm_quota');
+    if(q)monthQuota=JSON.parse(q);
+    const s=localStorage.getItem('kkday_scm_sched');
+    if(s)sched=JSON.parse(s);
+    const a=localStorage.getItem('kkday_scm_adjlogs');
+    if(a)adjLogs=JSON.parse(a);
+    const st=localStorage.getItem('kkday_scm_state');
+    if(st){const{cGroup:g2,cMonth:m2}=JSON.parse(st);if(g2)cGroup=g2;if(m2)cMonth=m2;}
+  }catch(e){console.warn('loadData error:',e);}
+}
+
+// Override saveData to sync to API
+let _dataLoaded=false; // flag: only save after data is fully loaded from API
+async function saveData(){
+  if(!_dataLoaded){console.log('Data not loaded yet, skip save');return;}
+  // Always save to localStorage as backup
+  try{
+    localStorage.setItem('kkday_scm_groups',JSON.stringify(groups));
+    localStorage.setItem('kkday_scm_prefs',JSON.stringify(mPrefs));
+    localStorage.setItem('kkday_scm_quota',JSON.stringify(monthQuota));
+    localStorage.setItem('kkday_scm_sched',JSON.stringify(sched));
+    localStorage.setItem('kkday_scm_adjlogs',JSON.stringify(adjLogs));
+  }catch(e){}
+  // Sync to API
+  if(!_token){console.warn('No token, skip API sync');return;}
+  try{
+    let results;
+    if(currentUser?.role==='專員'){
+      // 專員只存自己的偏好
+      const myPrefs={};
+      if(currentUser.id&&mPrefs[currentUser.id])myPrefs[currentUser.id]=mPrefs[currentUser.id];
+      results=[await apiPost('savePrefs', myPrefs)];
+    }else{
+      results=await Promise.all([
+        apiPost('savePrefs', mPrefs),
+        apiPost('saveSched', sched),
+        apiPost('saveQuota', monthQuota),
+        apiPost('saveGroups', groups),
+        apiPost('saveAdjLog', adjLogs),
+      ]);
+    }
+    const errs=results.filter(r=>r&&r.error);
+    if(errs.length)console.warn('API errors:',errs);
+    else console.log('API sync OK');
+  }catch(e){console.warn('API sync failed:',e);}
+}
+
+// Dynamic perm list from API
+function getPermList(){
+  return permList || [];
+}
+function savePermList(){
+  if(_token)apiPost('savePerms', permList).catch(e=>console.warn(e));
+}
+
+// Init Google Sign-In after page loads
+window.addEventListener('load',async()=>{
+  // First check if coming back from Google OAuth redirect
+  const handled=await checkOAuthRedirect();
+  if(handled)return;
+  // Try saved token
+  const saved=localStorage.getItem('kkday_scm_login');
+  if(saved&&saved.length>20){
+    _token=saved;
+    document.getElementById('loginLoading').style.display='block';
+    loadFromAPI().catch(()=>{
+      _token=null;
+      localStorage.removeItem('kkday_scm_login');
+      document.getElementById('loginLoading').style.display='none';
+      document.getElementById('loginError').textContent='';
+      showLogin();
+    });
+  }else{
+    showLogin();
+  }
+});
+
+function showLogin(){
+  const appWrap=document.getElementById('appWrap');
+  const loginWrap=document.getElementById('loginWrap');
+  if(appWrap)appWrap.style.display='none';
+  if(loginWrap)loginWrap.style.display='flex';
+  const err=document.getElementById('loginError');
+  if(err)err.textContent='';
+}
+
+function initGoogleSignIn(){
+  if(typeof google==='undefined'){setTimeout(initGoogleSignIn,500);return;}
+  google.accounts.id.initialize({
+    client_id:'208441001754-heqvph03a21490f5ec0jluvi848cbs2r.apps.googleusercontent.com',
+    callback:onGoogleSignIn,
+    auto_select:false,
+    hd:'kkday.com'
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('googleSignInBtn'),
+    {theme:'outline',size:'large',text:'signin_with',locale:'zh-TW',width:280}
+  );
+}
+
+
+const G=()=>groups[cGroup];
+const M=()=>MONTH_META[cMonth];
+const DOW=(d)=>(M().startDow+d-1)%7;
+const getHols=(c,m)=>{const k=c+'_'+m;if(!cHols[k])cHols[k]=[...(DEF_HOLS[c]?.[m]||[])];return cHols[k];};
+const mHols=(m)=>getHols(['tw','my','vn'].includes(m.country)?m.country:'tw',cMonth);
+const isWorkSlot=(s)=>['A','C','E','HOL_A','HOL_E','HOL_C'].includes(s);
+
+function natWeek(d){const dow1=M().startDow;const mo=dow1===0?6:dow1-1;return Math.ceil((d+mo)/7);}
+function weeksInMonth(){const s=new Set();for(let d=1;d<=M().days;d++)s.add(natWeek(d));return[...s].sort((a,b)=>a-b);}
+function daysOfWeek(wk){const r=[];for(let d=1;d<=M().days;d++)if(natWeek(d)===wk)r.push(d);return r;}
+
+function initPrefs(){G().members.forEach(m=>{if(!mPrefs[m.id])mPrefs[m.id]={};if(!mPrefs[m.id][cMonth])mPrefs[m.id][cMonth]={sure:[],wish:[],workDays:{},note:''};});}
+function initMonthQuota(){
+  if(!monthQuota[cGroup])monthQuota[cGroup]={};
+  if(!monthQuota[cGroup][cMonth])monthQuota[cGroup][cMonth]={};
+  const weeks=weeksInMonth();
+  G().members.forEach(m=>{
+    if(!monthQuota[cGroup][cMonth][m.id]){
+      const hols=mHols(m);let sx=0,sl=0;
+      // Count weeks where person has ≥2 non-HOL days in this month
+      // This matches 勞基法: each natural week with ≥2 workable days earns 1休+1例
+      weeks.forEach(wk=>{
+        const wd=daysOfWeek(wk);
+        const nonHol=wd.filter(d=>!hols.includes(d));
+        if(nonHol.length>=2){sx++;sl++;}
+      });
+      monthQuota[cGroup][cMonth][m.id]={shouldXiu:sx,shouldLi:sl};
+    }
+  });
+}
+
+function renderGroupSelect(){
+  const keys=Object.keys(groups);if(!groups[cGroup])cGroup=keys[0]||'';
+  document.getElementById('groupSelect').innerHTML=keys.map(k=>`<option value="${k}"${k===cGroup?' selected':''}>${groups[k].name}</option>`).join('');
+}
+function onGroupChange(){cGroup=document.getElementById('groupSelect').value;cMIdx=0;refresh();}
+function onMonthChange(){cMonth=document.getElementById('monthSelect').value;initPrefs();initMonthQuota();refresh();}
+function refresh(){
+  initPrefs();initMonthQuota();renderGroupSelect();renderStaffGrids();renderHolStaffGrid();renderMonthQuotaGrid();renderHolCal();
+  document.getElementById('empGroupName').textContent=G().name;
+  document.getElementById('prefGroupName').textContent=G().name;
+  document.getElementById('monthLabel').textContent=M().label;
+  renderEmpList();renderMemberTabs();renderPrefCal();renderPrefSummary();if(document.getElementById('page-demand').classList.contains('active'))renderDemand();
+}
+
+function renderStaffGrids(){
+  const g=G(),n=g.members.length,days=['日','一','二','三','四','五','六'];
+  document.getElementById('minStaffGrid').innerHTML=`<div class="sec">最低人力</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">${days.map((d,i)=>`<div><div class="label" style="text-align:center">週${d}</div><input type="number" min="0" max="${n}" value="${g.minStaff[i]||0}" style="text-align:center" onchange="if(!isLeader()){alert('需要組長或課長權限');this.value=groups['${cGroup}'].minStaff[${i}]||0;return;}groups['${cGroup}'].minStaff[${i}]=+this.value||0;saveData()"></div>`).join('')}</div>`;
+  document.getElementById('maxStaffGrid').innerHTML=`<div class="sec" style="margin-top:10px">最多人力（0=不限）</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">${days.map((d,i)=>`<div><div class="label" style="text-align:center">週${d}</div><input type="number" min="0" max="${n}" value="${g.maxStaff?.[i]||0}" style="text-align:center" onchange="if(!isLeader()){alert('需要組長或課長權限');this.value=groups['${cGroup}'].maxStaff?.[${i}]||0;return;}groups['${cGroup}'].maxStaff[${i}]=+this.value||0;saveData()"></div>`).join('')}</div><div style="font-size:11px;color:#999;margin-top:6px">組員：${n}人</div>`;
+}
+function renderHolStaffGrid(){
+  const g=G(),n=g.members.length;
+  document.getElementById('holStaffGrid').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div><div class="sec">最低出勤</div><input type="number" min="0" max="${n}" value="${g.holMin??1}" onchange="groups['${cGroup}'].holMin=+this.value||0" style="max-width:100px"></div>
+    <div><div class="sec">最多出勤（0=不限）</div><input type="number" min="0" max="${n}" value="${g.holMax??0}" onchange="groups['${cGroup}'].holMax=+this.value||0" style="max-width:100px"></div>
+  </div>`;
+}
+function renderMonthQuotaGrid(){
+  const g=G();initMonthQuota();const q=monthQuota[cGroup][cMonth];
+  if(!g.members.length){document.getElementById('monthQuotaGrid').innerHTML='<div style="font-size:13px;color:#666">尚無員工</div>';return;}
+  document.getElementById('monthQuotaGrid').innerHTML=`<table class="tbl"><thead><tr><th>組員</th><th>本月應休假</th><th>本月應例假</th></tr></thead>
+    <tbody>${g.members.map(m=>`<tr><td style="font-weight:600">${m.en}</td>
+      <td><input type="number" min="0" max="10" value="${q[m.id]?.shouldXiu??0}" style="width:64px;text-align:center" onchange="setMQ('${m.id}','shouldXiu',+this.value)"></td>
+      <td><input type="number" min="0" max="10" value="${q[m.id]?.shouldLi??0}" style="width:64px;text-align:center" onchange="setMQ('${m.id}','shouldLi',+this.value)"></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+function setMQ(id,key,val){if(!monthQuota[cGroup])monthQuota[cGroup]={};if(!monthQuota[cGroup][cMonth])monthQuota[cGroup][cMonth]={};if(!monthQuota[cGroup][cMonth][id])monthQuota[cGroup][cMonth][id]={shouldXiu:0,shouldLi:0};monthQuota[cGroup][cMonth][id][key]=val;saveData();}
+
+function switchHolCtry(c){holCtry=c;document.getElementById('holTabTW').className='btn btn-sm'+(c==='tw'?' btn-primary':'');document.getElementById('holTabMY').className='btn btn-sm'+(c==='my'?' btn-primary':'');document.getElementById('holTabVN').className='btn btn-sm'+(c==='vn'?' btn-primary':'');renderHolCal();}
+function renderHolCal(){
+  const hols=getHols(holCtry,cMonth),mo=M();
+  document.getElementById('holCalHdr').innerHTML=DOWSTR.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  let h='';for(let i=0;i<mo.startDow;i++)h+=`<div class="cal-day empty"></div>`;
+  const holTag=holCtry==='tw'?'國':holCtry==='vn'?'VN':'KL';for(let d=1;d<=mo.days;d++){const on=hols.includes(d);h+=`<div class="cal-day ${on?'is-hol':''}" onclick="togHol(${d})">${d}${on?`<span class="day-tag">${holTag}</span>`:''}</div>`;}
+  document.getElementById('holCal').innerHTML=h;
+  document.getElementById('holList').textContent=hols.length?`已設定：${[...hols].sort((a,b)=>a-b).map(d=>`${d}日`).join('、')}`:'本月尚無假日';
+}
+function togHol(d){
+  if(!isCourse()){alert('需要課長權限才能編輯國定假日');return;}const k=holCtry+'_'+cMonth;if(!cHols[k])cHols[k]=[...getHols(holCtry,cMonth)];const i=cHols[k].indexOf(d);if(i>=0)cHols[k].splice(i,1);else cHols[k].push(d);renderHolCal();}
+
+function moveEmp(i,dir){
+  if(!isLeader()){alert('需要組長或課長權限');return;}
+  const members=G().members;
+  const j=i+dir;
+  if(j<0||j>=members.length)return;
+  [members[i],members[j]]=[members[j],members[i]];
+  renderEmpList();renderMemberTabs();saveData();
+}
+function renderEmpList(){
+  const g=G(),sl={A:'A班',E:'E班',C:'C班',AE:'A/E彈排'};
+  const n=g.members.length;
+  document.getElementById('empList').innerHTML=!n?`<div style="padding:1rem;font-size:13px;color:#666;text-align:center">尚無員工</div>`:g.members.map((m,i)=>`<div class="member-row">
+    <div style="display:flex;flex-direction:column;margin-right:4px">
+      <button onclick="moveEmp(${i},-1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:${i===0?'#ddd':'#888'}" ${i===0?'disabled':''}>▲</button>
+      <button onclick="moveEmp(${i},1)" style="border:none;background:none;cursor:pointer;padding:0 4px;font-size:12px;line-height:1.4;color:${i===n-1?'#ddd':'#888'}" ${i===n-1?'disabled':''}>▼</button>
+    </div>
+    <div class="avatar ${m.country==='my'?'avatar-my':m.country==='vn'?'avatar-vn':''}">${m.en.slice(0,2).toUpperCase()}</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${m.zh} ${m.en}</div>
+      <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.id} · ${m.email}</div></div>
+    <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+      <span class="${m.country==='my'?'cp-my':m.country==='vn'?'cp-vn':'cp-tw'}">${m.country==='my'?'MY':m.country==='vn'?'VN':'TW'}</span>
+      <span class="badge bok">${sl[m.shift]||m.shift}</span>
+      <button class="btn btn-sm" onclick="openEditEmp(${i})">編輯</button>
+      <button class="btn btn-sm btn-danger" onclick="removeEmp(${i})">移除</button>
+    </div></div>`).join('');
+}
+function openAddEmp(){editIdx=null;document.getElementById('empModalTitle').textContent='新增員工';['eId','eZh','eEn','eEmail'].forEach(x=>document.getElementById(x).value='');document.getElementById('eShift').value='AE';document.getElementById('eCtry').value='tw';document.getElementById('ePrev').value='0';document.getElementById('empModal').classList.add('open');}
+function openEditEmp(i){editIdx=i;const m=G().members[i];document.getElementById('empModalTitle').textContent='編輯員工';document.getElementById('eId').value=m.id;document.getElementById('eZh').value=m.zh;document.getElementById('eEn').value=m.en;document.getElementById('eEmail').value=m.email;document.getElementById('eShift').value=m.shift;document.getElementById('eCtry').value=m.country||'tw';document.getElementById('ePrev').value=m.prev||0;document.getElementById('empModal').classList.add('open');}
+function closeEmpModal(){document.getElementById('empModal').classList.remove('open');}
+function saveEmp(){
+  if(!isLeader()){alert('需要組長或課長權限才能編輯組員');return;}const o={id:document.getElementById('eId').value.trim(),zh:document.getElementById('eZh').value.trim(),en:document.getElementById('eEn').value.trim(),email:document.getElementById('eEmail').value.trim(),shift:document.getElementById('eShift').value,country:document.getElementById('eCtry').value,prev:+document.getElementById('ePrev').value||0};if(!o.en){alert('請填英文名稱');return;}if(editIdx!==null)groups[cGroup].members[editIdx]=o;else groups[cGroup].members.push(o);closeEmpModal();renderEmpList();renderMemberTabs();renderStaffGrids();renderMonthQuotaGrid();saveData();}
+function removeEmp(i){
+  if(!isLeader()){alert('需要組長或課長權限才能移除組員');return;}if(!confirm(`確定移除 ${G().members[i].en}？`))return;groups[cGroup].members.splice(i,1);cMIdx=0;renderEmpList();renderMemberTabs();renderPrefCal();renderStaffGrids();renderMonthQuotaGrid();saveData();}
+function openAddGroup(){document.getElementById('gId').value='';document.getElementById('gName').value='';document.getElementById('gShiftType').value='AE';document.getElementById('groupModal').classList.add('open');}
+function closeGroupModal(){document.getElementById('groupModal').classList.remove('open');}
+function deleteGroup(){
+  if(!isCourse()){alert('需要課長權限');return;}
+  const keys=Object.keys(groups);
+  if(keys.length<=1){alert('至少需要保留一個組別');return;}
+  if(!confirm(`確定刪除「${G().name}」組別？此操作無法還原。`))return;
+  delete groups[cGroup];
+  cGroup=Object.keys(groups)[0];
+  refresh();saveData();
+}
+function saveGroup(){
+  if(!isCourse()){alert('需要課長權限');return;}const id=document.getElementById('gId').value.trim().replace(/[^a-zA-Z0-9_]/g,'_');const name=document.getElementById('gName').value.trim();const st=document.getElementById('gShiftType').value;if(!id||!name){alert('請填代碼和名稱');return;}if(groups[id]){alert('代碼已存在');return;}groups[id]={name,shiftTypes:st==='C'?['C']:['A','E'],minStaff:{0:1,1:1,2:1,3:1,4:1,5:0,6:0},maxStaff:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},holMin:1,holMax:2,members:[]};closeGroupModal();cGroup=id;refresh();saveData();}
+function renderMemberTabs(){
+  // Populate month selector
+  const pms=document.getElementById('prefMonthSelect');
+  if(pms){
+    const now=new Date();
+    pms.innerHTML='';
+    for(let delta=-2;delta<=6;delta++){
+      const d=new Date(now.getFullYear(),now.getMonth()+delta,1);
+      const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0');
+      const val=`${y}-${m}`;
+      const opt=document.createElement('option');
+      opt.value=val;opt.textContent=`${y}年${d.getMonth()+1}月`;
+      if(val===cMonth)opt.selected=true;
+      pms.appendChild(opt);
+    }
+  }
+  // Members can only see their own tab
+  if(currentUser&&currentUser.role==='專員'){
+    const g=G();
+    const idx=g.members.findIndex(m=>m.id===currentUser.id);
+    if(idx>=0&&cMIdx!==idx){cMIdx=idx;}
+  }initPrefs();
+  document.getElementById('memberTabs').innerHTML=G().members.map((m,i)=>{
+    const isOwn=!currentUser||currentUser.role!=='專員'||m.id===currentUser.id;
+    const style=isOwn?'':" style='opacity:.35;cursor:not-allowed;pointer-events:none'";
+    return`<button class="btn btn-sm ${i===cMIdx?'btn-primary':''}"${style} onclick="selMember(${i})">${m.en}</button>`;
+  }).join('');}
+function selMember(i){cMIdx=i;renderMemberTabs();renderPrefCal();}
+
+function renderPrefCal(){
+  const g=G();initPrefs();
+  if(!g.members.length){document.getElementById('prefCal').innerHTML='<div style="padding:1rem;font-size:13px;color:#666">請先新增員工</div>';document.getElementById('memberInfo').innerHTML='';return;}
+  const m=g.members[cMIdx]||g.members[0];
+  const p=mPrefs[m.id][cMonth],sure=p.sure||[],wish=p.wish||[],hols=mHols(m),mo=M();
+  document.getElementById('memberInfo').innerHTML=`<div class="flex-between"><div class="flex">
+    <div class="avatar ${m.country==='my'?'avatar-my':m.country==='vn'?'avatar-vn':''}">${m.en.slice(0,2).toUpperCase()}</div>
+    <div><div style="font-size:13px;font-weight:600">${m.zh} ${m.en} <span class="${m.country==='my'?'cp-my':m.country==='vn'?'cp-vn':'cp-tw'}" style="margin-left:4px">${m.country==='my'?'MY':m.country==='vn'?'VN':'TW'}</span></div>
+    <div style="font-size:11px;color:#666">首要希望 ${sure.length}/4 · 希望休 ${wish.length}/4</div></div></div></div>`;
+  document.getElementById('prefHdr').innerHTML=DOWSTR.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  let h='';for(let i=0;i<mo.startDow;i++)h+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=mo.days;d++){const iS=sure.includes(d),iW=wish.includes(d),iH=hols.includes(d);let cls='cal-day';if(iS)cls+=' ps';else if(iW)cls+=' pw';if(iH)cls+=' is-hol';h+=`<div class="${cls}" onclick="togPref(${d})">${d}${iH?`<span class="day-tag">${m.country==='my'?'KL':'國'}</span>`:''}</div>`;}
+  document.getElementById('prefCal').innerHTML=h;
+  // Update month label
+  const ml=document.getElementById('prefMonthLabel');
+  if(ml)ml.textContent=MONTH_META[cMonth]?.label?cMonth.slice(0,4)+'年'+MONTH_META[cMonth].label:'';
+  // Check if pref is closed for this month
+  const _prefClosed=isPrefClosed(cMonth);
+  const _myIdx2=currentUser?G().members.findIndex(mm=>mm.id===currentUser.id):-1;
+  const _isOwnTab=isCourse()||(cMIdx===_myIdx2);
+  const _canEditCal=isCourse()||(_isOwnTab&&!_prefClosed);
+  // Show/hide closed banner (only for members viewing own tab when closed)
+  const banner=document.getElementById('prefClosedBanner');
+  if(banner)banner.style.display=(_prefClosed&&!isCourse()&&_isOwnTab)?'block':'none';
+  // Show/hide close button (leaders/course only)
+  const closedBtn=document.getElementById('prefClosedBtn');
+  if(closedBtn){closedBtn.style.display=isLeader()?'':'none';renderPrefClosedBtn();}
+  // Toggle edit state for all pref inputs
+  document.getElementById('prefCal').style.pointerEvents=_canEditCal?'':'none';
+  document.getElementById('prefCal').style.opacity=_canEditCal?'1':'0.7';
+  // Also toggle workPref and note cards visibility based on closed state
+  const _showExtra=_canEditCal||isCourse();
+  const workCard=document.getElementById('workPrefCard');
+  const noteCard=document.getElementById('prefNoteCard');
+  if(workCard)workCard.style.display=_showExtra?'':'none';
+  if(noteCard)noteCard.style.display=_showExtra?'':'none';
+  const wpc=document.getElementById('workPrefCal');
+  if(wpc){wpc.style.pointerEvents=_canEditCal?'':'none';wpc.style.opacity=_canEditCal?'1':'0.7';}
+  const pn=document.getElementById('prefNote');
+  if(pn)pn.readOnly=!_canEditCal;
+  const as=[...sure].sort((a,b)=>a-b),aw=[...wish].sort((a,b)=>a-b);
+  document.getElementById('prefCount').innerHTML=`${as.length?`首要希望：${as.map(d=>`${d}日`).join('、')} `:''}${aw.length?`希望休：${aw.map(d=>`${d}日`).join('、')}`:''}${!as.length&&!aw.length?'尚未選擇':''}`;
+  renderWorkPrefCal(m);
+}
+
+function renderWorkPrefCal(m){
+  if(!m)return;
+  const p=mPrefs[m.id]?.[cMonth]||{sure:[],wish:[],workDays:{},note:''};
+  const wd=p.workDays||{},mo=M();
+  document.getElementById('workPrefHdr').innerHTML=DOWSTR.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  let h='';for(let i=0;i<mo.startDow;i++)h+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=mo.days;d++){
+    const v=wd[d];
+    const cls=v?'cal-day ps':'cal-day';
+    const lbl=v?`<span class="day-tag" style="font-weight:700">${v}</span>`:'';
+    h+=`<div class="${cls}" onclick="togWorkPref(${d})" title="點擊切換A/E，再點取消">${d}${lbl}</div>`;
+  }
+  document.getElementById('workPrefCal').innerHTML=h;
+  const days=Object.keys(wd).map(Number).sort((a,b)=>a-b);
+  document.getElementById('workPrefCount').textContent=days.length?`想上班：${days.map(d=>`${d}日(${wd[d]})`).join('、')}`:'尚未選擇';
+  document.getElementById('prefNote').value=p.note||'';
+  // Readonly for leaders viewing others' prefs
+  const _myIdx=currentUser?G().members.findIndex(mm=>mm.id===currentUser.id):-1;
+  const _canEdit=isCourse()||(cMIdx===_myIdx);
+  document.getElementById('prefNote').readOnly=!_canEdit;
+  document.getElementById('prefNote').style.background=_canEdit?'':'#f9fafb';
+}
+
+function togWorkPref(d){
+  if(!isCourse()){
+    const g=G();
+    const myIdx=currentUser?g.members.findIndex(m=>m.id===currentUser.id):-1;
+    if(cMIdx!==myIdx)return;
+  }
+  const m=G().members[cMIdx];if(!m)return;
+  if(!mPrefs[m.id])mPrefs[m.id]={};
+  if(!mPrefs[m.id][cMonth])mPrefs[m.id][cMonth]={sure:[],wish:[],workDays:{},note:''};
+  const p=mPrefs[m.id][cMonth];
+  if(!p.workDays)p.workDays={};
+  if(!p.workDays[d]) p.workDays[d]='A';
+  else if(p.workDays[d]==='A') p.workDays[d]='E';
+  else delete p.workDays[d];
+  renderWorkPrefCal(m);renderPrefSummary();saveData();
+}
+
+function savePrefNote(){
+  const m=G().members[cMIdx];if(!m)return;
+  const myIdx=currentUser?G().members.findIndex(mm=>mm.id===currentUser.id):-1;
+  if(!isCourse()&&cMIdx!==myIdx)return; // leaders can't edit others' notes
+  if(!mPrefs[m.id])mPrefs[m.id]={};
+  if(!mPrefs[m.id][cMonth])mPrefs[m.id][cMonth]={sure:[],wish:[],workDays:{},note:''};
+  mPrefs[m.id][cMonth].note=document.getElementById('prefNote').value;saveData();
+}
+function togPref(d){
+  // Only 專員 editing own tab, or 課長
+  if(!isCourse()){
+    const g=G();
+    const myIdx=currentUser?g.members.findIndex(m=>m.id===currentUser.id):-1;
+    if(cMIdx!==myIdx)return; // not their own tab, block
+  }
+  const m=G().members[cMIdx];if(!m)return;
+  if(!mPrefs[m.id])mPrefs[m.id]={};if(!mPrefs[m.id][cMonth])mPrefs[m.id][cMonth]={sure:[],wish:[],workDays:{},note:''};
+  const p=mPrefs[m.id][cMonth];
+  if(p.sure.includes(d))p.sure.splice(p.sure.indexOf(d),1);
+  else if(p.wish.includes(d))p.wish.splice(p.wish.indexOf(d),1);
+  else if(p.sure.length<4)p.sure.push(d);
+  else if(p.wish.length<4)p.wish.push(d);
+  else alert('已達上限（首要4+希望4）');
+  renderPrefCal();renderPrefSummary();saveData();
+}
+function renderPrefSummary(){
+  const g=G();initPrefs();if(!g.members.length){document.getElementById('prefSummary').innerHTML='';return;}
+  document.getElementById('prefSummary').innerHTML=`<table class="tbl"><thead><tr><th>組員</th><th>法規</th><th>首要希望</th><th>希望休</th><th>想上班日</th><th>備註</th></tr></thead>
+    <tbody>${g.members.map(m=>{const p=mPrefs[m.id]?.[cMonth]||{sure:[],wish:[],workDays:{},note:''};
+      const wdDays=Object.keys(p.workDays||{}).map(Number).sort((a,b)=>a-b);
+      return`<tr><td style="font-weight:600">${m.en}</td><td><span class="${m.country==='my'?'cp-my':m.country==='vn'?'cp-vn':'cp-tw'}">${m.country==='my'?'MY':m.country==='vn'?'VN':'TW'}</span></td>
+        <td>${(p.sure||[]).length?[...p.sure].sort((a,b)=>a-b).map(d=>`${d}日`).join('、'):'—'}</td>
+        <td style="color:#666">${(p.wish||[]).length?[...p.wish].sort((a,b)=>a-b).map(d=>`${d}日`).join('、'):'—'}</td>
+        <td style="color:#27500a">${wdDays.length?wdDays.map(d=>`${d}日(${p.workDays[d]})`).join('、'):'—'}</td>
+        <td style="color:#444;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.note||'—'}</td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ALGORITHM v14 — CAPACITY-AWARE WEEK ASSIGNMENT
+// Core fix: budget() is re-read dynamically as we assign each person.
+// Order of member assignment within each week matters:
+// Assign members who have fewer options first (greedy by scarcity).
+// This prevents the "everyone takes same day" pile-up in short weeks.
+// ══════════════════════════════════════════════════════════════
+function runSchedule(){
+  if(!isLeader()){alert('需要組長或課長權限才能執行排班');return;}
+  const g=G();
+  if(!g.members.length){alert('請先新增員工');return;}
+  initPrefs();initMonthQuota();sched={};
+  const mo=M();
+  const isNight=g.shiftTypes.includes('C')&&!g.shiftTypes.includes('A');
+  const base=isNight?'C':'A';
+  adjLogs=[];
+  const D=mo.days;
+  const weeks=weeksInMonth();
+  const allHols=new Set();
+  g.members.forEach(m=>mHols(m).forEach(d=>allHols.add(d)));
+  const warns=[];
+  const N=g.members.length;
+  const isRest=s=>s==='休'||s==='例';
+
+  function nw(d){return g.members.filter(m=>['WORK','HOL_WORK'].includes(sched[m.id][d])).length;}
+  function minOf(d){if(allHols.has(d))return g.holMin??1;return g.minStaff[DOW(d)]||0;}
+  function maxOf(d){if(allHols.has(d)){const mx=g.holMax||0;return mx>0?mx:999;}const mx=g.maxStaff?.[DOW(d)]||0;return mx>0?mx:999;}
+  // How many must rest on d (to meet max): N - max
+  function needRest(d){if(allHols.has(d))return 0;const mx=g.maxStaff?.[DOW(d)]||0;return mx>0?Math.max(0,N-mx):0;}
+  // How many more CAN rest on d (won't go below min)
+  function capRest(d){if(allHols.has(d))return 0;return Math.max(0,nw(d)-minOf(d));}
+
+  function totX(m){return Object.values(sched[m.id]).filter(s=>s==='休').length;}
+  function totL(m){return Object.values(sched[m.id]).filter(s=>s==='例').length;}
+  function wkX(mid,wk){return daysOfWeek(wk).filter(d=>sched[mid][d]==='休').length;}
+  function wkL(mid,wk){return daysOfWeek(wk).filter(d=>sched[mid][d]==='例').length;}
+  function rdOf(mid){return Object.keys(sched[mid]).map(Number).filter(d=>isRest(sched[mid][d])).sort((a,b)=>a-b);}
+  function mq(m){return monthQuota[cGroup]?.[cMonth]?.[m.id]||{shouldXiu:0,shouldLi:0};}
+  function mgap(wk){return daysOfWeek(wk).filter(d=>!allHols.has(d)).length<=2?1:2;}
+
+  function weekPlan(m){
+    const hols=mHols(m);
+    const vwks=weeks.filter(wk=>daysOfWeek(wk).filter(d=>!hols.includes(d)).length>=2);
+    const sx=Math.max(0,vwks.length-mq(m).shouldXiu);
+    const sl=Math.max(0,vwks.length-mq(m).shouldLi);
+    return{xiuWks:new Set(vwks.slice(sx)),liWks:new Set(vwks.slice(sl)),
+           exX:mq(m).shouldXiu>vwks.length,exL:mq(m).shouldLi>vwks.length};
+  }
+
+  function prefScore(m,d){
+    const mp=mPrefs[m.id]?.[cMonth]||{sure:[],wish:[],workDays:{}};
+    if((mp.sure||[]).includes(d))return 100;
+    if((mp.wish||[]).includes(d))return 50;
+    if((mp.workDays||{})[d])return -100;
+    return 0;
+  }
+
+  // S1
+  g.members.forEach(m=>{sched[m.id]={};for(let d=1;d<=D;d++)sched[m.id][d]='WORK';});
+
+  // S2: HOL
+  const holMin=g.holMin??1,holMax=g.holMax||0;
+  for(const d of [...allHols].sort((a,b)=>a-b)){
+    const elig=g.members.filter(m=>mHols(m).includes(d));
+    const wc=holMax>0?Math.min(holMax,elig.length):Math.max(holMin,elig.length);
+    [...elig].sort(()=>Math.random()-.5).forEach((m,i)=>{sched[m.id][d]=i<wc?'HOL_WORK':'HOL_OFF';});
+  }
+
+  // S3: Sure prefs
+  g.members.forEach(m=>{
+    const mid=m.id,plan=weekPlan(m),p=mPrefs[mid]?.[cMonth]||{sure:[]};
+    for(const d of [...(p.sure||[])].sort((a,b)=>a-b)){
+      if(d<1||d>D||mHols(m).includes(d)||sched[mid][d]!=='WORK')continue;
+      const wk=natWeek(d),wd=daysOfWeek(wk);
+      if(wkX(mid,wk)>=1&&wkL(mid,wk)>=1){warns.push(`${m.en} 首要希望 ${d}日 週配額已滿`);continue;}
+      const q=mq(m),mg=mgap(wk);
+      const xd=wd.find(x=>sched[mid][x]==='休'),ld=wd.find(x=>sched[mid][x]==='例');
+      let t=null;
+      if(wkX(mid,wk)===0&&totX(m)<q.shouldXiu&&plan.xiuWks.has(wk)&&(ld===undefined||Math.abs(d-ld)>=mg))t='休';
+      if(t===null&&wkL(mid,wk)===0&&totL(m)<q.shouldLi&&plan.liWks.has(wk)&&(xd===undefined||Math.abs(d-xd)>=mg))t='例';
+      if(t===null){
+        // More specific warning
+        const wk2=natWeek(d),wx=wkX(mid,wk2),wl=wkL(mid,wk2);
+        const tx2=totX(m),tl2=totL(m),q2=mq(m);
+        let reason='';
+        if(wx>=1&&wl>=1)reason='週配額已滿';
+        else if(tx2>=q2.shouldXiu&&wl>=1)reason='月休配額已滿';
+        else if(tl2>=q2.shouldLi&&wx>=1)reason='月例配額已滿';
+        else if(!plan.xiuWks.has(wk2)&&!plan.liWks.has(wk2))reason='此週為借假週（跳過）';
+        else reason=`gap限制或配額（休${tx2}/${q2.shouldXiu} 例${tl2}/${q2.shouldLi} wkX=${wx} wkL=${wl}）`;
+        warns.push(`${m.en} 首要希望 ${d}日 無法排入：${reason}`);
+        continue;
+      }
+      sched[mid][d]=t;
+      if(nw(d)<minOf(d))warns.push(`${m.en} 首要希望 ${d}日 人力不足`);
+    }
+  });
+
+  // Post-S3 check: warn about any sure pref that didn't get placed
+  g.members.forEach(m=>{
+    const p=mPrefs[m.id]?.[cMonth]||{sure:[]};
+    for(const d of (p.sure||[])){
+      if(d<1||d>D||mHols(m).includes(d))continue;
+      if(sched[m.id][d]==='WORK'){
+        warns.push(`⚠ ${m.en} 首要希望 ${d}日 未能排入（請查看上方說明）`);
+      }
+    }
+  });
+
+  // S4: Group-based weekly assignment
+  // Each pass: pick the day most below its rest target, assign the best member to rest there
+  weeks.forEach(wk=>{
+    const wd=daysOfWeek(wk),avail=wd.filter(d=>!allHols.has(d));
+    if(avail.length<2)return;
+    const mg=mgap(wk);
+    const totalNeeded=g.members.reduce((s,m)=>{
+      const plan=weekPlan(m),q=mq(m);
+      if(wkX(m.id,wk)===0&&totX(m)<q.shouldXiu&&plan.xiuWks.has(wk))s++;
+      if(wkL(m.id,wk)===0&&totL(m)<q.shouldLi&&plan.liWks.has(wk))s++;
+      return s;
+    },0);
+
+    for(let iter=0;iter<totalNeeded+5;iter++){
+      // Sort days: most below target first, then by most cap
+      const dayOrder=[...avail].sort((a,b)=>{
+        const curA=g.members.filter(m=>isRest(sched[m.id][a])).length;
+        const curB=g.members.filter(m=>isRest(sched[m.id][b])).length;
+        const defA=needRest(a)-curA, defB=needRest(b)-curB;
+        if(defB!==defA)return defB-defA;
+        return capRest(b)-capRest(a);
+      });
+
+      let placed=false;
+      for(const d of dayOrder){
+        const cur=g.members.filter(m=>isRest(sched[m.id][d])).length;
+        const target=needRest(d);
+        if(target>0&&cur>=target)continue;
+        if(target===0&&capRest(d)<=0)continue;
+
+        // Find best member to rest on d
+        let bestM=null,bestT=null,bestScore=-99999;
+        for(const m of g.members){
+          const mid=m.id,plan=weekPlan(m),q=mq(m);
+          if(sched[mid][d]!=='WORK')continue;
+          const needsX=wkX(mid,wk)===0&&totX(m)<q.shouldXiu&&plan.xiuWks.has(wk);
+          const needsL=wkL(mid,wk)===0&&totL(m)<q.shouldLi&&plan.liWks.has(wk);
+          if(!needsX&&!needsL)continue;
+          const xd=wd.find(x=>sched[mid][x]==='休'),ld2=wd.find(x=>sched[mid][x]==='例');
+          const canX=needsX&&(ld2===undefined||Math.abs(d-ld2)>=mg);
+          const canL=needsL&&(xd===undefined||Math.abs(d-xd)>=mg);
+          if(!canX&&!canL)continue;
+          const t=canX?'休':'例';
+          // Score: fewer remaining options = more urgent (place first)
+          const opts=avail.filter(x=>sched[mid][x]==='WORK'&&x!==d&&
+            (xd===undefined||Math.abs(x-xd)>=mg)&&(ld2===undefined||Math.abs(x-ld2)>=mg)).length;
+          let sc2=prefScore(m,d)-opts*10;
+          if(target>0&&cur<target)sc2+=200;
+          if(sc2>bestScore){bestScore=sc2;bestM=m;bestT=t;}
+        }
+        if(bestM){sched[bestM.id][d]=bestT;placed=true;break;}
+      }
+      if(!placed)break;
+    }
+  });
+
+  // Checkpoint: track sure pref placement
+  const _sureCheck=()=>{
+    const alerts=[];
+    g.members.forEach(m=>{
+      const p=mPrefs[m.id]?.[cMonth]||{sure:[]};
+      (p.sure||[]).forEach(d=>{
+        if(d>=1&&d<=D&&!mHols(m).includes(d)&&sched[m.id][d]==='WORK')
+          alerts.push(`${m.en} d=${d} still WORK`);
+      });
+    });
+    return alerts;
+  };
+
+  // S5: Wish prefs
+  function isSurePref(m,d){
+    return (mPrefs[m.id]?.[cMonth]?.sure||[]).includes(d);
+  }
+  function tryWishSwap(m,pd){
+    const mid=m.id,wk=natWeek(pd),wd=daysOfWeek(wk);
+    if(sched[mid][pd]!=='WORK')return false;
+    if(wkX(mid,wk)<1||wkL(mid,wk)<1)return false;
+    const mg=mgap(wk);
+    const xd=wd.find(x=>sched[mid][x]==='休'),ld=wd.find(x=>sched[mid][x]==='例');
+    // Don't move a sure-pref day
+    if(xd!==undefined&&!isSurePref(m,xd)&&(ld===undefined||Math.abs(pd-ld)>=mg)){sched[mid][xd]='WORK';sched[mid][pd]='休';return true;}
+    if(ld!==undefined&&!isSurePref(m,ld)&&(xd===undefined||Math.abs(pd-xd)>=mg)){sched[mid][ld]='WORK';sched[mid][pd]='例';return true;}
+    return false;
+  }
+  g.members.forEach(m=>{
+    const mid=m.id,byWk={};
+    for(const d of (mPrefs[mid]?.[cMonth]?.wish||[])){
+      if(d<1||d>D||mHols(m).includes(d)||sched[mid][d]!=='WORK')continue;
+      const wk=natWeek(d);
+      if((byWk[wk]||0)>=2){sched[mid][d]='OFF';continue;}
+      const full=wkX(mid,wk)>=1&&wkL(mid,wk)>=1;
+      let ok=false;
+      if(full){
+        ok=tryWishSwap(m,d);
+      }else{
+        const plan=weekPlan(m),q=mq(m),wd=daysOfWeek(wk),mg=mgap(wk);
+        const xd=wd.find(x=>sched[mid][x]==='休'),ld2=wd.find(x=>sched[mid][x]==='例');
+        let t=null;
+        if(wkX(mid,wk)===0&&totX(m)<q.shouldXiu&&plan.xiuWks.has(wk)&&(ld2===undefined||Math.abs(d-ld2)>=mg))t='休';
+        else if(wkL(mid,wk)===0&&totL(m)<q.shouldLi&&plan.liWks.has(wk)&&(xd===undefined||Math.abs(d-xd)>=mg))t='例';
+        if(t&&capRest(d)>0){sched[mid][d]=t;ok=true;}
+      }
+      if(ok)byWk[wk]=(byWk[wk]||0)+1;
+      else sched[mid][d]='OFF';
+    }
+  });
+
+  // S6: Spread (don't move from days at or below rest target)
+  for(let pass=0;pass<12;pass++){
+    let moved=false;
+    g.members.forEach(m=>{
+      const mid=m.id,r=rdOf(mid);
+      for(let i=0;i<r.length-1;i++){
+        const d1=r[i],d2=r[i+1];
+        if(d2-d1>=3)continue;
+        function tryMv(fd,mg2){
+          // Never move a sure-pref day
+          if(isSurePref({id:mid},fd))return false;
+          const cur=g.members.filter(mm=>isRest(sched[mm.id][fd])).length;
+          if(needRest(fd)>0&&cur<=needRest(fd))return false;
+          const rt=sched[mid][fd],wk=natWeek(fd),wd=daysOfWeek(wk);
+          const others=rdOf(mid).filter(x=>x!==fd);
+          const cands=wd.filter(x=>x!==fd&&sched[mid][x]==='WORK'&&!allHols.has(x)&&capRest(x)>0&&others.every(r=>Math.abs(x-r)>=mg2));
+          if(!cands.length)return false;
+          cands.sort((a,b)=>needRest(b)-needRest(a)||capRest(b)-capRest(a));
+          sched[mid][cands[0]]=rt;sched[mid][fd]='WORK';return true;
+        }
+        if(tryMv(d2,3)||tryMv(d2,2)||tryMv(d1,3)||tryMv(d1,2)){moved=true;break;}
+      }
+    });
+    if(!moved)break;
+  }
+
+  // S7: >6 consecutive
+  g.members.forEach(m=>{
+    let run=m.prev||0;
+    for(let d=1;d<=D;d++){
+      if(['WORK','HOL_WORK'].includes(sched[m.id][d])){
+        run++;
+        if(run>=7){
+          const wk=natWeek(d),wd=daysOfWeek(wk),mg=mgap(wk);
+          const plan=weekPlan(m),q=mq(m);
+          const cands=[];
+          for(let x=Math.max(1,d-5);x<=d;x++)if(sched[m.id][x]==='WORK'&&!allHols.has(x)&&capRest(x)>0)cands.push(x);
+          cands.sort((a,b)=>needRest(b)-needRest(a));
+          if(cands.length){
+            const pick=cands[0];
+            const xd=wd.find(x=>sched[m.id][x]==='休'),ld2=wd.find(x=>sched[m.id][x]==='例');
+            if(wkX(m.id,wk)===0&&totX(m)<q.shouldXiu&&plan.xiuWks.has(wk)&&(ld2===undefined||Math.abs(pick-ld2)>=mg)){sched[m.id][pick]='休';run=d-pick;}
+            else if(wkL(m.id,wk)===0&&totL(m)<q.shouldLi&&plan.liWks.has(wk)&&(xd===undefined||Math.abs(pick-xd)>=mg)){sched[m.id][pick]='例';run=d-pick;}
+          }
+        }
+      }else run=0;
+    }
+  });
+
+  // S8: Cross-month borrow
+  g.members.forEach(m=>{
+    const mid=m.id,plan=weekPlan(m),q=mq(m);
+    const lastWk=weeks[weeks.length-1],lastWd=daysOfWeek(lastWk),mg=mgap(lastWk);
+    if(plan.exX&&totX(m)<q.shouldXiu&&wkX(mid,lastWk)===0){
+      const ld=lastWd.find(d=>sched[mid][d]==='例');
+      const pool=lastWd.filter(d=>sched[mid][d]==='WORK'&&!allHols.has(d)&&capRest(d)>0&&(ld===undefined||Math.abs(d-ld)>=mg));
+      pool.sort((a,b)=>needRest(b)-needRest(a));
+      if(pool.length)sched[mid][pool[0]]='休';
+    }
+    if(plan.exL&&totL(m)<q.shouldLi&&wkL(mid,lastWk)===0){
+      const xd=lastWd.find(d=>sched[mid][d]==='休');
+      const pool=lastWd.filter(d=>sched[mid][d]==='WORK'&&!allHols.has(d)&&capRest(d)>0&&(xd===undefined||Math.abs(d-xd)>=mg));
+      pool.sort((a,b)=>needRest(b)-needRest(a));
+      if(pool.length)sched[mid][pool[0]]='例';
+    }
+  });
+
+  // Work pref + WORK→shift + E班
+  g.members.forEach(m=>{
+    const mid=m.id;
+    Object.entries(mPrefs[mid]?.[cMonth]?.workDays||{}).forEach(([d,shift])=>{
+      const dd=+d;
+      if(sched[mid][dd]==='WORK')sched[mid][dd]='WANT_'+shift;
+      else if(sched[mid][dd]==='HOL_WORK')sched[mid][dd]='WANT_HOL_'+shift;
+    });
+  });
+  g.members.forEach(m=>{
+    for(let d=1;d<=D;d++){
+      const s=sched[m.id][d];
+      if(s==='WORK')sched[m.id][d]=base;
+      else if(s==='HOL_WORK')sched[m.id][d]=`HOL_${base}`;
+      else if(s&&s.startsWith('WANT_HOL_'))sched[m.id][d]='HOL_'+s.slice(9);
+      else if(s&&s.startsWith('WANT_'))sched[m.id][d]=s.slice(5);
+    }
+  });
+  if(!isNight){
+    for(let d=1;d<=D;d++){
+      // Assign E班: prefer members who requested E on this day via workDays
+      function assignE(workers, eSlot){
+        if(!workers.length)return;
+        // Check if any worker has a workDays preference for E on this day
+        const preferred=workers.filter(m=>(mPrefs[m.id]?.[cMonth]?.workDays||{})[d]==='E');
+        const pick=preferred.length
+          ? preferred[Math.floor(Math.random()*preferred.length)]
+          : workers[Math.floor(Math.random()*workers.length)];
+        sched[pick.id][d]=eSlot;
+      }
+      const aw=g.members.filter(m=>sched[m.id]?.[d]==='A');
+      assignE(aw,'E');
+      const hw=g.members.filter(m=>sched[m.id]?.[d]==='HOL_A');
+      assignE(hw,'HOL_E');
+    }
+  }
+
+  const ud=understaffAudit();
+  goPage('result');renderResult(warns,ud);renderQuota();renderOT();refreshAdjLog();setTimeout(showReview,100);saveData();
+}
+
+function understaffAudit(){
+  const g=G(),allH=new Set();g.members.forEach(m=>mHols(m).forEach(d=>allH.add(d)));
+  const out=[];
+  for(let d=1;d<=M().days;d++){
+    const isHol=allH.has(d);
+    const min=isHol?(g.holMin??1):(g.minStaff[DOW(d)]||0);
+    const max=isHol?(g.holMax||0):(g.maxStaff?.[DOW(d)]||0);
+    const actual=g.members.filter(m=>isWorkSlot(sched[m.id]?.[d])).length;
+    if(actual<min)out.push({d,actual,min,max,isHol,over:false});
+    else if(max>0&&actual>max)out.push({d,actual,min,max,isHol,over:true});
+  }
+  return out;
+}
+
+// CORRECT cross-month logic:
+// actual < should → LAST week: 上班→休 (borrow from next month)
+// actual > should → FIRST week: 休→上班 (return to prev month)
+function applyQuotaAdj(){
+  const g=G();initMonthQuota();
+  const q=monthQuota[cGroup][cMonth],weeks=weeksInMonth();
+  const isNight=g.shiftTypes.includes('C')&&!g.shiftTypes.includes('A'),base=isNight?'C':'A';
+  const allH=new Set();g.members.forEach(m=>mHols(m).forEach(d=>allH.add(d)));
+  const msgs=[];
+  g.members.forEach(m=>{
+    const should=q[m.id];if(!should)return;
+    let xiu=0;for(let d=1;d<=M().days;d++)if(sched[m.id]?.[d]==='休')xiu++;
+    if(xiu<should.shouldXiu){
+      // 少休→最後週加休（從下月借）
+      const lastWk=weeks[weeks.length-1];
+      const workDays=daysOfWeek(lastWk).filter(d=>['A','C','E'].includes(sched[m.id]?.[d])&&!allH.has(d));
+      if(workDays.length>0){const pick=workDays[workDays.length-1];sched[m.id][pick]='休';msgs.push(`[跨月] ${m.en} ${pick}日 ${base}→休（從下月借假）`);}
+    } else if(xiu>should.shouldXiu){
+      // 多休→第一週移休（還前月）
+      const firstWk=weeks[0];
+      const xiuDays=daysOfWeek(firstWk).filter(d=>sched[m.id]?.[d]==='休');
+      if(xiuDays.length>0){const pick=xiuDays[0];sched[m.id][pick]=base;msgs.push(`[跨月] ${m.en} ${pick}日 休→${base}（歸還前月）`);}
+    }
+  });
+  if(msgs.length){adjLogs.unshift(...msgs);refreshAdjLog();}
+  const ud=understaffAudit();renderResult([],ud);renderQuota();renderOT();refreshAdjLog();saveData();
+}
+
+function refreshAdjLog(){const el=document.getElementById('adjustLog');if(el)el.innerHTML=adjLogs.slice(0,10).map(l=>`<div style="padding:3px 0;border-bottom:1px solid #f0f0f0">${l}</div>`).join('');}
+
+function scCls(s){return({'A':'sc sc-a','C':'sc sc-c','E':'sc sc-e','HOL_A':'sc sc-hol-a','HOL_E':'sc sc-hol-e','HOL_C':'sc sc-hol-c','HOL_OFF':'sc sc-hol-off','休':'sc sc-xiu','例':'sc sc-li','OFF':'sc sc-off'})[s]||'sc sc-off';}
+function disp(s){return({'HOL_A':'A','HOL_E':'E','HOL_C':'C','HOL_OFF':'國','HOL_WORK':'國'})[s]||s||'';}
+
+let menuTid=null,menuTday=null;
+const OPTS_TW=['A','E','休','例','HOL_A','HOL_E','HOL_OFF','OFF'];
+const OPTS_C=['C','休','例','HOL_C','HOL_OFF','OFF'];
+
+function showCellMenu(mid,day,el){
+  menuTid=mid;menuTday=day;
+  const isNight=G().shiftTypes.includes('C')&&!G().shiftTypes.includes('A');
+  const opts=isNight?OPTS_C:OPTS_TW;
+  const menu=document.getElementById('cellMenu');
+  menu.innerHTML=opts.map(o=>`<div class="cell-opt ${scCls(o)}" onclick="applyCell('${o}')">${disp(o)||o}</div>`).join('');
+  const rect=el.getBoundingClientRect();
+  menu.style.display='grid';menu.style.top=(rect.bottom+4)+'px';menu.style.left=Math.min(rect.left,window.innerWidth-160)+'px';
+}
+function applyCell(val){
+  if(!menuTid||!menuTday)return;
+  const old=sched[menuTid]?.[menuTday]||'';
+  if(!sched[menuTid])sched[menuTid]={};
+  sched[menuTid][menuTday]=val;
+  const m=G().members.find(x=>x.id===menuTid);
+  const operator=currentUser?`[${currentUser.en}] `:'';
+  adjLogs.unshift(`${operator}${m?.en||menuTid} ${menuTday}日 週${DOWSTR[DOW(menuTday)]}: ${disp(old)||old}→${disp(val)||val}`);
+  document.getElementById('cellMenu').style.display='none';
+  const ud=understaffAudit();renderResult([],ud);renderQuota();renderOT();refreshAdjLog();saveData();
+  menuTid=null;menuTday=null;
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#cellMenu')&&!e.target.closest('.sc'))document.getElementById('cellMenu').style.display='none';});
+
+function renderResult(warnings,understaffDays){
+  const g=G(),mo=M();
+  document.getElementById('resultName').textContent=g.name;
+  let tw=0,tH=0,tX=0,tL=0,tOff=0;
+  g.members.forEach(m=>{for(let d=1;d<=mo.days;d++){const s=sched[m.id]?.[d];
+    if(['A','C','E'].includes(s))tw++;
+    if(['HOL_A','HOL_E','HOL_C'].includes(s))tH++;
+    if(s==='休')tX++;if(s==='例')tL++;if(s==='OFF')tOff++;}});
+  document.getElementById('resultStats').innerHTML=`
+    <div class="stat-card"><div class="label">工作人次</div><div class="stat-num">${tw+tH}</div></div>
+    <div class="stat-card"><div class="label">休/例假人次</div><div class="stat-num">${tX+tL}</div></div>
+    <div class="stat-card"><div class="label">國假出勤/OFF</div><div class="stat-num">${tH}/${tOff}</div></div>`;
+
+  let warnHtml='';
+  if(warnings&&warnings.length)warnHtml+=`<div class="aw"><strong>排班提示（${warnings.length}筆）：</strong><br>${warnings.map(w=>`· ${w}`).join('<br>')}</div>`;
+  if(understaffDays&&understaffDays.length){
+    const underDays=understaffDays.filter(x=>!x.over);
+    const overDays=understaffDays.filter(x=>x.over);
+    if(underDays.length)warnHtml+=`<div class="ad"><strong>⚠ 人力不足日（${underDays.length}天）：</strong><br>${underDays.map(x=>`· ${x.d}日（週${DOWSTR[DOW(x.d)]}）${x.isHol?'[國假]':''} 實際${x.actual}人 / 最低需求${x.min}人`).join('<br>')}</div>`;
+    if(overDays.length)warnHtml+=`<div class="aw"><strong>⚠ 超過人力上限日（${overDays.length}天）：</strong><br>${overDays.map(x=>`· ${x.d}日（週${DOWSTR[DOW(x.d)]}）${x.isHol?'[國假]':''} 實際${x.actual}人 / 上限${x.max}人`).join('<br>')}</div>`;
+  }
+  if(!warnHtml)warnHtml=`<div class="ai">✓ 排班完成，人力達標，無偏好衝突</div>`;
+  document.getElementById('schedWarnings').innerHTML=warnHtml;
+
+  const half=Math.ceil(mo.days/2);
+  let html='';
+  [[1,half],[half+1,mo.days]].forEach(([s,e],bi)=>{
+    const days=Array.from({length:e-s+1},(_,i)=>s+i);
+    const cols=`72px ${days.map(()=>'minmax(19px,1fr)').join(' ')}`;
+    html+=`<div style="font-size:11px;font-weight:600;color:#666;margin-bottom:4px;margin-top:${bi?'12px':'0'}">${s}–${e}日</div>`;
+    html+=`<div style="display:grid;grid-template-columns:${cols};gap:2px;margin-bottom:2px"><div></div>${days.map(d=>{const isUnder=understaffDays&&understaffDays.some(u=>u.d===d&&!u.over);const isOver=understaffDays&&understaffDays.some(u=>u.d===d&&u.over);const colS=isUnder?'color:#a32d2d;font-weight:700':isOver?'color:#b45309;font-weight:700':'color:#999';return`<div style="text-align:center;font-size:9px;${colS}">${d}<br>${DOWSTR[DOW(d)]}${isUnder?' ⚠':isOver?' ▲':''}</div>`;}).join('')}</div>`;
+    html+=g.members.map(m=>`
+      <div style="display:grid;grid-template-columns:${cols};gap:2px;margin-bottom:2px;align-items:center">
+        <div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:2px">
+          <span class="${m.country==='my'?'cp-my':m.country==='vn'?'cp-vn':'cp-tw'}" style="font-size:9px;padding:1px 3px">${m.country==='my'?'MY':m.country==='vn'?'VN':'TW'}</span>${m.en}
+        </div>
+        ${days.map(d=>{const sv=sched[m.id]?.[d]||'';const isUs=understaffDays&&understaffDays.some(u=>u.d===d);
+          const isOver2=understaffDays&&understaffDays.some(u=>u.d===d&&u.over);
+          return`<div class="${scCls(sv)} sc${isUs?' sc-err':isOver2?' sc-warn':''}" onclick="showCellMenu('${m.id}',${d},this)">${disp(sv)}</div>`;
+        }).join('')}
+      </div>`).join('');
+  });
+  document.getElementById('resultTable').innerHTML=html;
+}
+
+function renderQuota(){
+  const g=G(),mo=M();initMonthQuota();
+  const q=monthQuota[cGroup][cMonth],weeks=weeksInMonth();
+  const rows=g.members.map(m=>{
+    let xiu=0,li=0;for(let d=1;d<=mo.days;d++){if(sched[m.id]?.[d]==='休')xiu++;if(sched[m.id]?.[d]==='例')li++;}
+    const should=q[m.id]||{shouldXiu:0,shouldLi:0},dx=xiu-should.shouldXiu,dl=li-should.shouldLi;
+    const hols=mHols(m),wkIssues=[];
+    // Determine which weeks should have 休/例 based on quota (respect skip weeks)
+    const _vwks=weeks.filter(wk2=>{const wd2=daysOfWeek(wk2);return wd2.filter(d=>!hols.includes(d)).length>=2;});
+    const _sX=Math.max(0,_vwks.length-(should.shouldXiu||0));
+    const _sL=Math.max(0,_vwks.length-(should.shouldLi||0));
+    const _xWks=new Set(_vwks.slice(_sX));
+    const _lWks=new Set(_vwks.slice(_sL));
+    weeks.forEach(wk=>{
+      const wd=daysOfWeek(wk);const _avail=wd.filter(d=>!hols.includes(d));if(_avail.length<2)return;
+      const wx=wd.filter(d=>sched[m.id]?.[d]==='休').length,wl=wd.filter(d=>sched[m.id]?.[d]==='例').length;
+      if(_xWks.has(wk)&&wx!==1)wkIssues.push(`W${wk}休${wx}`);
+      if(_lWks.has(wk)&&wl!==1)wkIssues.push(`W${wk}例${wl}`);
+    });
+    return{name:m.en,xiu,li,shouldXiu:should.shouldXiu,shouldLi:should.shouldLi,dx,dl,wkIssues};
+  });
+  document.getElementById('quotaTable').innerHTML=`<table class="tbl">
+    <thead><tr><th>組員</th><th>應休</th><th>實休</th><th>差</th><th>應例</th><th>實例</th><th>差</th><th>週次（應各=1）</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td style="font-weight:600">${r.name}</td><td>${r.shouldXiu}</td><td>${r.xiu}</td>
+      <td class="${r.dx>0?'diff-pos':r.dx<0?'diff-neg':'diff-zero'}">${r.dx>0?'+'+r.dx:r.dx}</td>
+      <td>${r.shouldLi}</td><td>${r.li}</td>
+      <td class="${r.dl>0?'diff-pos':r.dl<0?'diff-neg':'diff-zero'}">${r.dl>0?'+'+r.dl:r.dl}</td>
+      <td>${r.wkIssues.length?`<span class="badge berr" style="font-size:10px">${r.wkIssues.join(' ')}</span>`:'<span class="badge bok" style="font-size:10px">合規</span>'}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function checkCompliance(){
+  const g=G(),mo=M(),weeks=weeksInMonth();
+  const allH=new Set();g.members.forEach(m=>mHols(m).forEach(d=>allH.add(d)));
+  return g.members.map(m=>{
+    const issues=[];let consec=m.prev||0,maxC=0;
+    for(let d=1;d<=mo.days;d++){const s=sched[m.id]?.[d];if(isWorkSlot(s)){consec++;maxC=Math.max(maxC,consec);}else consec=0;}
+    if(maxC>6)issues.push(`最長連續上班 ${maxC} 天`);
+    const hols=mHols(m);
+    const _q2=monthQuota[cGroup]?.[cMonth]?.[m.id]||{shouldXiu:0,shouldLi:0};
+    const _vwks2=weeks.filter(wk2=>daysOfWeek(wk2).filter(d=>!hols.includes(d)).length>=2);
+    const _xWks2=new Set(_vwks2.slice(Math.max(0,_vwks2.length-_q2.shouldXiu)));
+    const _lWks2=new Set(_vwks2.slice(Math.max(0,_vwks2.length-_q2.shouldLi)));
+    weeks.forEach(wk=>{
+      const wd=daysOfWeek(wk);const _avail=wd.filter(d=>!hols.includes(d));if(_avail.length<2)return;
+      const wx=wd.filter(d=>sched[m.id]?.[d]==='休').length,wl=wd.filter(d=>sched[m.id]?.[d]==='例').length;
+      if(_xWks2.has(wk)&&wx!==1)issues.push(`第${wk}週休假${wx}天（應=1）`);
+      if(_lWks2.has(wk)&&wl!==1)issues.push(`第${wk}週例假${wl}天（應=1）`);
+    });
+    understaffAudit().forEach(u=>issues.push(`${u.d}日 人力不足（實${u.actual}/需${u.min}）`));
+    return{name:m.en,country:m.country||'tw',issues};
+  });
+}
+
+function renderOT(){
+  const g=G(),mo=M(),rows=[],byDay={};
+  const hasMY=g.members.some(m=>m.country==='my');
+  // Show MY rules note if group has MY members
+  const myRuleEl=document.getElementById('myOtRule');
+  if(myRuleEl)myRuleEl.style.display=hasMY?'block':'none';
+  g.members.forEach(m=>{const days=[];
+    for(let d=1;d<=mo.days;d++){
+      const s=sched[m.id]?.[d];
+      if(['HOL_A','HOL_E','HOL_C'].includes(s)){
+        days.push(d);if(!byDay[d])byDay[d]=[];byDay[d].push(`${m.en}(${disp(s)})`);
+      }
+    }
+    if(days.length){
+      const isMY=m.country==='my';
+      const dw=days.map(d=>DOW(d));
+      const hasWeekend=dw.some(w=>w===0||w===6);
+      let rule=isMY
+        ?'可申請補休1天 / 加班費'+(hasWeekend?' ｜ 含週末假日，可另申請補休':'')
+        :'可申請補休1天 / 加班費';
+      rows.push({name:m.en,zh:m.zh,country:m.country,days,count:days.length,rule});
+    }
+  });
+  document.getElementById('otReport').innerHTML=!rows.length?`<div style="font-size:13px;color:#666;padding:1rem 0;text-align:center">本月無國定假日出勤</div>`
+    :`<table class="tbl"><thead><tr><th>員工</th><th>法規</th><th>出勤日期</th><th>天數</th><th>規則</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td><div style="font-weight:600">${r.name}</div><div style="font-size:11px;color:#666">${r.zh}</div></td>
+      <td><span class="${r.country==='my'?'cp-my':'cp-tw'}">${r.country==='my'?'MY':'TW'}</span></td>
+      <td>${r.days.map(d=>`${d}日`).join('、')}</td><td style="text-align:center;font-weight:600">${r.count}</td>
+      <td style="font-size:11px;color:#666">${r.rule}</td>
+    </tr>`).join('')}</tbody></table>`;
+  const sd=Object.keys(byDay).map(Number).sort((a,b)=>a-b);
+  document.getElementById('otDaySummary').innerHTML=!sd.length?`<div style="font-size:13px;color:#666">無</div>`
+    :`<table class="tbl"><thead><tr><th>日期</th><th>出勤人員</th><th>人數</th></tr></thead>
+    <tbody>${sd.map(d=>`<tr><td style="font-weight:600">${d}日（週${DOWSTR[DOW(d)]}）</td><td>${byDay[d].join('、')}</td><td><span class="badge bok">${byDay[d].length}人</span></td></tr>`).join('')}</tbody></table>`;
+}
+
+function commitMonth(){
+  const g=G(),mo=M();
+  g.members.forEach(m=>{
+    let xiu=0,li=0;for(let d=1;d<=mo.days;d++){if(sched[m.id]?.[d]==='休')xiu++;if(sched[m.id]?.[d]==='例')li++;}
+    if(!annualData[m.id])annualData[m.id]={};
+    const q=monthQuota[cGroup]?.[cMonth]?.[m.id]||{shouldXiu:0,shouldLi:0};
+    annualData[m.id][cMonth]={xiu,li,shouldXiu:q.shouldXiu,shouldLi:q.shouldLi,name:m.en,zh:m.zh,country:m.country};
+  });
+}
+
+function renderAnnual(){
+  const g=G();document.getElementById('annualGroupName').textContent=g.name;
+  const months=Object.keys(MONTH_META).sort();
+  const committed=months.filter(mo=>g.members.some(m=>annualData[m.id]?.[mo]));
+  if(!committed.length){document.getElementById('annualSummary').innerHTML=`<div style="font-size:13px;color:#666;padding:1rem 0">尚無已確認月份，請排班後點「確認本月並更新年度」。</div>`;return;}
+  document.getElementById('annualSummary').innerHTML=g.members.map(m=>{
+    let totSX=0,totX=0,totSL=0,totL=0;
+    committed.forEach(mo=>{const d=annualData[m.id]?.[mo];if(d){totSX+=d.shouldXiu;totX+=d.xiu;totSL+=d.shouldLi;totL+=d.li;}});
+    const dx=totX-totSX,dl=totL-totSL;
+    const mRows=committed.map(mo=>{const d=annualData[m.id]?.[mo];if(!d)return'';const mx=d.xiu-d.shouldXiu,ml=d.li-d.shouldLi;
+      return`<tr><td style="color:#666">${MONTH_META[mo].label}</td><td>${d.shouldXiu}</td>
+        <td class="${mx>0?'diff-pos':mx<0?'diff-neg':'diff-zero'}">${d.xiu}${mx!==0?` (${mx>0?'+':''}${mx})`:''}</td>
+        <td>${d.shouldLi}</td><td class="${ml>0?'diff-pos':ml<0?'diff-neg':'diff-zero'}">${d.li}${ml!==0?` (${ml>0?'+':''}${ml})`:''}</td></tr>`;}).join('');
+    return`<div class="card" style="margin-bottom:.75rem">
+      <div class="flex-between" style="margin-bottom:.75rem">
+        <div class="flex"><div class="avatar ${m.country==='my'?'avatar-my':m.country==='vn'?'avatar-vn':''}">${m.en.slice(0,2).toUpperCase()}</div>
+          <div><div style="font-size:13px;font-weight:600">${m.zh} ${m.en}</div><div style="font-size:11px;color:#666">2026截至${MONTH_META[committed[committed.length-1]].label}</div></div></div>
+        <div style="display:flex;gap:8px">
+          <div style="text-align:center;background:#f7f7f7;border-radius:8px;padding:6px 12px">
+            <div style="font-size:10px;color:#666">累計休假</div><div style="font-size:14px;font-weight:600">應${totSX}/實${totX}</div>
+            <div style="font-size:11px" class="${dx>0?'diff-pos':dx<0?'diff-neg':'diff-zero'}">${dx>0?'超+'+dx:dx<0?'欠'+dx:'持平'}</div>
+          </div>
+          <div style="text-align:center;background:#f7f7f7;border-radius:8px;padding:6px 12px">
+            <div style="font-size:10px;color:#666">累計例假</div><div style="font-size:14px;font-weight:600">應${totSL}/實${totL}</div>
+            <div style="font-size:11px" class="${dl>0?'diff-pos':dl<0?'diff-neg':'diff-zero'}">${dl>0?'超+'+dl:dl<0?'欠'+dl:'持平'}</div>
+          </div>
+        </div>
+      </div>
+      <table class="tbl"><thead><tr><th>月份</th><th>應休</th><th>實休</th><th>應例</th><th>實例</th></tr></thead>
+      <tbody>${mRows}</tbody></table>
+    </div>`;
+  }).join('');
+}
+
+function toggleHalf(){reviewHalf=reviewHalf===1?2:1;document.getElementById('halfBtn').textContent=reviewHalf===1?'切換後半月':'切換前半月';renderReview();}
+function renderReview(){
+  const g=G(),mo=M(),half=Math.ceil(mo.days/2);
+  const allH=new Set();g.members.forEach(m=>mHols(m).forEach(d=>allH.add(d)));
+  const s2=reviewHalf===1?1:half+1,e2=reviewHalf===1?half:mo.days;
+  const usSet=new Set(); const overSet=new Set();
+  for(let d=s2;d<=e2;d++){
+    const isHol=allH.has(d),min=isHol?(g.holMin??1):(g.minStaff[DOW(d)]||0);
+    const max=isHol?(g.holMax||0):(g.maxStaff?.[DOW(d)]||0);
+    const actual=g.members.filter(m=>isWorkSlot(sched[m.id]?.[d])).length;
+    if(actual<min)usSet.add(d);
+    else if(max>0&&actual>max)overSet.add(d);
+  }
+  const days=Array.from({length:e2-s2+1},(_,i)=>s2+i);
+  document.getElementById('halfLabel').textContent=`${s2}–${e2}日`;
+  const cols=`62px ${days.map(()=>'minmax(19px,1fr)').join(' ')}`;
+  let html=`<div style="font-size:11px;color:#666;margin-bottom:8px">${s2}–${e2}日 — 點格子切換班別</div>`;
+  html+=`<div style="display:grid;grid-template-columns:${cols};gap:2px;margin-bottom:2px"><div></div>${days.map(d=>{const isUs=usSet.has(d),isOv=overSet.has(d);const colS=isUs?'color:#a32d2d;font-weight:700':isOv?'color:#b45309;font-weight:700':'color:#999';return`<div style="text-align:center;font-size:9px;${colS}">${d}<br>${DOWSTR[DOW(d)]}${isUs?' ⚠':isOv?' ▲':''}</div>`;}).join('')}</div>`;
+  html+=g.members.map(m=>`
+    <div style="display:grid;grid-template-columns:${cols};gap:2px;margin-bottom:2px;align-items:center">
+      <div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.en}</div>
+      ${days.map(d=>{const sv=sched[m.id]?.[d]||'A';const isUs=usSet.has(d);
+        return`<div class="${scCls(sv)} sc${isUs?' sc-err':''}" onclick="showCellMenu('${m.id}',${d},this)">${disp(sv)}</div>`;
+      }).join('')}
+    </div>`).join('');
+  document.getElementById('reviewTable').innerHTML=html;updateCompliance();
+}
+function updateCompliance(){
+  const checks=checkCompliance().filter(c=>c.issues.length),wrap=document.getElementById('complianceWrap');
+  if(!checks.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  document.getElementById('reviewCompliance').innerHTML=checks.map(c=>`
+    <div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eee">
+      <div class="flex-between"><div class="flex"><span style="font-size:13px;font-weight:600">${c.name}</span><span class="${c.country==='my'?'cp-my':'cp-tw'}">${c.country==='my'?'MY':'TW'}</span></div>
+      <span class="badge berr">${c.issues.length}項問題</span></div>
+      ${c.issues.map(i=>`<div class="ad" style="margin-top:4px">${i}</div>`).join('')}
+    </div>`).join('');
+}
+
+function exportCSV(){
+  const g=G(),mo=M();
+  let csv='\uFEFF,NAME,COUNTRY,'+Array.from({length:mo.days},(_,i)=>i+1).join(',')+'\n';
+  g.members.forEach(m=>{csv+=`${m.id},${m.zh} ${m.en},${m.country},`+Array.from({length:mo.days},(_,i)=>disp(sched[m.id]?.[i+1]||'')).join(',')+'\n';});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`排班表_${g.name}_${cMonth}.csv`;a.click();
+}
+function exportOT(){
+  const g=G(),mo=M();let csv='\uFEFF員工,中文名,法規,出勤日期,天數,規則\n';
+  g.members.forEach(m=>{const days=[];for(let d=1;d<=mo.days;d++)if(['HOL_A','HOL_E','HOL_C'].includes(sched[m.id]?.[d]))days.push(d);
+    if(days.length)csv+=`${m.en},${m.zh},${m.country},${days.map(d=>`${d}日`).join('/')},${days.length},${m.country==='my'?'可申請補休1天或加班費':'可申請補休1天或加班費'}\n`;});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`加班費_${g.name}_${cMonth}.csv`;a.click();
+}
+function exportExcel(){ exportExcelCode(); }
+function exportExcelCode(){
+  const g=G(),mo=M();
+  const dH=Array.from({length:mo.days},(_,i)=>`${cMonth.slice(5,7)}/${String(i+1).padStart(2,'0')}`);
+  let csv='\uFEFF員工編號,員工名稱,'+dH.join(',')+'\n';
+  g.members.forEach(m=>{
+    const cells=Array.from({length:mo.days},(_,i)=>{const s=sched[m.id]?.[i+1]||'';return EXCEL_CODE[s]??disp(s);});
+    csv+=`${m.id},${m.zh} ${m.en},${cells.join(',')}\n`;
+  });
+  csv+='\n說明,OP-B=A班/OFF,OP-A=E班,OP-C=C班,;H=休,;H2=例,;H4=國定假日\n';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`排班代碼_${g.name}_${cMonth}.csv`;a.click();
+}
+function exportExcelDisplay(){
+  const g=G(),mo=M();
+  const dH=Array.from({length:mo.days},(_,i)=>`${cMonth.slice(5,7)}/${String(i+1).padStart(2,'0')}`);
+  const dowNames=['日','一','二','三','四','五','六'];
+  const dowH=Array.from({length:mo.days},(_,i)=>dowNames[DOW(i+1)]);
+  let csv='\uFEFF員工編號,員工名稱,'+dH.join(',')+'\n';
+  csv+=',,'+dowH.join(',')+'\n';
+  g.members.forEach(m=>{
+    const cells=Array.from({length:mo.days},(_,i)=>{const s=sched[m.id]?.[i+1]||'';return DISPLAY_CODE[s]??disp(s);});
+    csv+=`${m.id},${m.zh} ${m.en},${cells.join(',')}\n`;
+  });
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`排班結果_${g.name}_${cMonth}.csv`;a.click();
+}
+
+function populateGroupSelect(selId){
+  const sel=document.getElementById(selId);
+  if(!sel)return;
+  sel.innerHTML=Object.entries(groups).map(([k,g])=>`<option value="${k}"${k===cGroup?' selected':''}>${g.name}</option>`).join('');
+  sel.style.display=isLeader()?'':'none';
+}
+function populateMonthSelects(selIds){
+  const now=new Date();
+  selIds.forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    sel.innerHTML='';
+    for(let delta=-2;delta<=6;delta++){
+      const d=new Date(now.getFullYear(),now.getMonth()+delta,1);
+      const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0');
+      const val=`${y}-${mo}`;
+      const opt=document.createElement('option');
+      opt.value=val;opt.textContent=`${y}年${d.getMonth()+1}月`;
+      if(val===cMonth)opt.selected=true;
+      sel.appendChild(opt);
+    }
+  });
+}
+function populateDemandSelects(){
+  populateGroupSelect('demandGroupSelect');
+  populateMonthSelects(['demandMonthSelect']);
+}
+function populateResultSelects(){
+  populateGroupSelect('resultGroupSelect');
+  populateMonthSelects(['resultMonthSelect']);
+}
+
+function renderDemand(){
+  const g=G(),mo=M();initPrefs();
+  // Set month label
+  const dml=document.getElementById('demandMonthLabel');
+  if(dml)dml.textContent=cMonth.slice(0,4)+'年'+(MONTH_META[cMonth]?.label||'');
+  if(!g.members.length){
+    document.getElementById('demandTable').innerHTML='<div style="color:#666;padding:1rem">請先新增員工</div>';
+    return;
+  }
+  const D=mo.days;
+  const hols=new Set();g.members.forEach(m=>mHols(m).forEach(d=>hols.add(d)));
+  const maxW=g.maxStaff;
+
+  // Count sure+wish per day per member
+  // sure=2, wish=1 (weight)
+  const sureCnt=Array(D+1).fill(0);
+  const wishCnt=Array(D+1).fill(0);
+  const sureWho=Array.from({length:D+1},()=>[]);
+  const wishWho=Array.from({length:D+1},()=>[]);
+  g.members.forEach(m=>{
+    const p=mPrefs[m.id]?.[cMonth]||{sure:[],wish:[]};
+    (p.sure||[]).forEach(d=>{if(d>=1&&d<=D){sureCnt[d]++;sureWho[d].push(m.en);}});
+    (p.wish||[]).forEach(d=>{if(d>=1&&d<=D){wishCnt[d]++;wishWho[d].push(m.en);}});
+  });
+
+  // Header row: dates + weekday
+  const dowNames=['日','一','二','三','四','五','六'];
+  let hdr='<div style="display:grid;grid-template-columns:80px repeat('+D+',1fr);gap:2px;min-width:'+(80+D*28)+'px">';
+  hdr+='<div style="font-size:11px;color:#999;padding:2px 0">日期</div>';
+  for(let d=1;d<=D;d++){
+    const isHol=hols.has(d);
+    const dw=DOW(d);
+    const isWE=dw===0||dw===6;
+    const col=isHol?'#ef4444':isWE?'#f59e0b':'#999';
+    hdr+=`<div style="text-align:center;font-size:9px;color:${col};font-weight:${isWE||isHol?700:400}">${d}<br>${dowNames[dw]}</div>`;
+  }
+  hdr+='</div>';
+
+  // Each member row
+  let rows='';
+  g.members.forEach(m=>{
+    const p=mPrefs[m.id]?.[cMonth]||{sure:[],wish:[]};
+    const sure=new Set(p.sure||[]),wish=new Set(p.wish||[]);
+    rows+='<div style="display:grid;grid-template-columns:80px repeat('+D+',1fr);gap:2px;min-width:'+(80+D*28)+'px;margin-top:2px">';
+    rows+=`<div style="font-size:11px;font-weight:600;display:flex;align-items:center;padding:2px 0">${m.en}</div>`;
+    const workDays=p.workDays||{};
+    for(let d=1;d<=D;d++){
+      const isSure=sure.has(d),isWish=wish.has(d),isWork=workDays[d];
+      let bg='transparent',label='',color='#888',border='none';
+      if(isSure){bg='#ef4444';label='首';color='#fff';}
+      else if(isWish){bg='#f97316';label='希';color='#fff';}
+      else if(isWork){bg='#dcfce7';label=isWork;color='#166534';border='1px solid #86efac';}
+      rows+=`<div style="text-align:center;border-radius:3px;background:${bg};color:${color};font-size:10px;font-weight:600;padding:2px 0;line-height:1.4;border:${border}">${label}</div>`;
+    }
+    rows+='</div>';
+  });
+
+  // Total row: sum of sure+wish per day, grey out over-max days
+  let totRow='<div style="display:grid;grid-template-columns:80px repeat('+D+',1fr);gap:2px;min-width:'+(80+D*28)+'px;margin-top:6px;border-top:2px solid #e5e7eb;padding-top:4px">';
+  totRow+='<div style="font-size:11px;color:#666;font-weight:600;display:flex;align-items:center">需求數</div>';
+  for(let d=1;d<=D;d++){
+    const tot=sureCnt[d]+wishCnt[d];
+    const dw=DOW(d);
+    const mx=hols.has(d)?(g.holMax||0):((g.maxStaff?.[dw]||0));
+    // restNeeded = N - mx (if mx set); tot = people wanting rest
+    const N2=g.members.length;
+    const restSlots=mx>0?N2-mx:N2-g.minStaff[dw];
+    const over=tot>restSlots&&restSlots>0;
+    const bg=over?'#d1d5db':'transparent';
+    const fc=tot===0?'#d1d5db':over?'#374151':'#374151';
+    const title=sureWho[d].length||wishWho[d].length?
+      `首要:${sureWho[d].join('/')||'無'} 希望:${wishWho[d].join('/')||'無'}`:'';
+    totRow+=`<div style="text-align:center;border-radius:3px;background:${bg};color:${fc};font-size:10px;font-weight:700;padding:2px 0" title="${title}">${tot||''}</div>`;
+  }
+  totRow+='</div>';
+
+  // Legend row
+  const legend='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:#666">'+
+    '<span><span style="display:inline-block;width:14px;height:14px;background:#ef4444;border-radius:2px;vertical-align:middle;margin-right:3px"></span>首要希望</span>'+
+    '<span><span style="display:inline-block;width:14px;height:14px;background:#f97316;border-radius:2px;vertical-align:middle;margin-right:3px"></span>希望休</span>'+
+    '<span><span style="display:inline-block;width:14px;height:14px;background:#dcfce7;border:1px solid #86efac;border-radius:2px;vertical-align:middle;margin-right:3px"></span>想上班日</span>'+
+    '<span><span style="display:inline-block;width:14px;height:14px;background:#d1d5db;border-radius:2px;vertical-align:middle;margin-right:3px"></span>需求超出可排名額</span>'+
+    '</div>';
+  document.getElementById('demandTable').innerHTML=hdr+rows+totRow+legend;
+  renderPrefSummary();
+
+  // Notes section
+  const notes=g.members.filter(m=>{const p=mPrefs[m.id]?.[cMonth];return p&&p.note&&p.note.trim();});
+  if(notes.length){
+    document.getElementById('demandNotes').innerHTML=
+      '<table class="tbl"><thead><tr><th>組員</th><th>備註</th></tr></thead><tbody>'+
+      notes.map(m=>`<tr><td style="font-weight:600;white-space:nowrap">${m.en}</td><td style="color:#444">${mPrefs[m.id][cMonth].note}</td></tr>`).join('')+
+      '</tbody></table>';
+  } else {
+    document.getElementById('demandNotes').innerHTML='<div style="color:#999;font-size:13px">尚無備註</div>';
+  }
+}
+
+function showReview(){
+  const g=G(),mo=M();initPrefs();
+  if(!Object.keys(sched).length){
+    document.getElementById('reviewResult').innerHTML='<div style="color:#999;font-size:13px;padding:.5rem">請先執行排班</div>';
+    return;
+  }
+  const issues=[];
+  const ok=[];
+  g.members.forEach(m=>{
+    const mid=m.id;
+    const p=mPrefs[mid]?.[cMonth]||{sure:[],wish:[],workDays:{},note:''};
+    // Check sure prefs
+    for(const d of (p.sure||[])){
+      if(d<1||d>mo.days)continue;
+      const s=sched[mid]?.[d];
+      const isResting=s==='休'||s==='例'||s==='HOL_OFF'||s==='OFF';
+      if(!isResting){
+        issues.push({type:'sure',member:m.en,d,got:s,expected:'休/例',priority:1});
+      } else {
+        ok.push({type:'sure',member:m.en,d});
+      }
+    }
+    // Check wish prefs (only flag if person ended up working AND it's not due to staffing)
+    for(const d of (p.wish||[])){
+      if(d<1||d>mo.days)continue;
+      const s=sched[mid]?.[d];
+      const isResting=s==='休'||s==='例'||s==='HOL_OFF';
+      if(!isResting&&s!=='OFF'){
+        issues.push({type:'wish',member:m.en,d,got:s,expected:'休/例',priority:2});
+      }
+    }
+    // Check workDays (wanted specific shift)
+    for(const [dd,shift] of Object.entries(p.workDays||{})){
+      const d=+dd;
+      if(d<1||d>mo.days)continue;
+      const s=sched[mid]?.[d];
+      const actualShift=s==='HOL_E'?'E':s==='HOL_A'?'A':s;
+      if(actualShift!==shift&&s!=='休'&&s!=='例'&&s!=='OFF'&&s!=='HOL_OFF'){
+        issues.push({type:'work',member:m.en,d,got:actualShift,expected:shift,priority:3});
+      }
+    }
+  });
+
+  if(!issues.length&&ok.length){
+    document.getElementById('reviewResult').innerHTML=
+      `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;font-size:13px;color:#166534">
+        ✅ 所有偏好均已符合（共 ${ok.length} 個首要希望全部排入）
+      </div>`;
+    return;
+  }
+
+  const typeLabel={sure:'首要希望',wish:'希望休',work:'想上班班別'};
+  const typeColor={sure:'#ef4444',wish:'#f97316',work:'#3b82f6'};
+  const rows=issues.sort((a,b)=>a.priority-b.priority||a.member.localeCompare(b.member)||a.d-b.d)
+    .map(i=>`<tr>
+      <td style="font-weight:600">${i.member}</td>
+      <td>${i.d}日（週${DOWSTR[DOW(i.d)]}）</td>
+      <td><span style="background:${typeColor[i.type]};color:#fff;padding:1px 7px;border-radius:4px;font-size:11px">${typeLabel[i.type]}</span></td>
+      <td style="color:#666">期望：${i.expected}</td>
+      <td style="color:#b91c1c">實際：${i.got||'?'}</td>
+    </tr>`).join('');
+
+  const okText=ok.length?`<div style="font-size:11px;color:#666;margin-top:6px">✅ 已符合首要希望：${ok.map(o=>`${o.member} ${o.d}日`).join('、')}</div>`:'';
+
+  document.getElementById('reviewResult').innerHTML=
+    `<div class="card" style="border-left:4px solid #ef4444">
+      <div class="card-title" style="color:#b91c1c;margin-bottom:.5rem">⚠ 偏好未符合項目（${issues.length} 項）</div>
+      <table class="tbl"><thead><tr><th>組員</th><th>日期</th><th>類型</th><th>期望</th><th>實際</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+      ${okText}
+    </div>`;
+}
+
+function renderPermTable(){
+  const list=getPermList();
+  const roleColor={'課長':'#10b981','組長':'#6366f1','專員':'#6b7280'};
+  const loginHint=(u)=>{
+    if(u.role==='課長')return'scmsection1/2+email';
+    if(u.role==='組長')return'teamlead+email';
+    return u.email;
+  };
+  document.getElementById('permTable').innerHTML=`<table class="tbl">
+    <thead><tr><th>員編</th><th>姓名</th><th>Email</th><th>國籍</th><th>權限</th><th>登入方式</th><th></th></tr></thead>
+    <tbody>${list.map((u,i)=>`<tr>
+      <td style="font-size:12px;color:#666">${u.id||'—'}</td>
+      <td style="font-weight:600">${u.en}<br><span style="font-size:11px;color:#999">${u.zh||''}</span></td>
+      <td style="font-size:12px">${u.email}</td>
+      <td><span class="${u.country==='my'?'cp-my':u.country==='vn'?'cp-vn':'cp-tw'}">${u.country==='my'?'MY':u.country==='vn'?'VN':'TW'}</span></td>
+      <td><span style="background:${roleColor[u.role]||'#999'};color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">${u.role}</span></td>
+      <td style="font-size:11px;color:#6366f1">${loginHint(u)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="editPerm(${i})" style="font-size:11px;margin-right:4px">編輯</button>
+        <button class="btn btn-sm" onclick="deletePerm(${i})" style="font-size:11px;background:#fee2e2;color:#b91c1c;border-color:#fca5a5">刪除</button>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+let editPermIdx=null;
+function openPermModal(idx){
+  editPermIdx=idx??null;
+  const u=idx!=null?getPermList()[idx]:null;
+  document.getElementById('permModalTitle').textContent=u?'編輯帳號':'新增帳號';
+  document.getElementById('pmId').value=u?.id||'';
+  document.getElementById('pmZh').value=u?.zh||'';
+  document.getElementById('pmEn').value=u?.en||'';
+  document.getElementById('pmEmail').value=u?.email||'';
+  document.getElementById('pmCountry').value=u?.country||'tw';
+  document.getElementById('pmRole').value=u?.role||'專員';
+  updatePermHint();
+  document.getElementById('permModal').style.display='flex';
+}
+function closePermModal(){document.getElementById('permModal').style.display='none';}
+function updatePermHint(){
+  const role=document.getElementById('pmRole').value;
+  const email=document.getElementById('pmEmail').value||'your.name@kkday.com';
+  let hint='';
+  if(role==='專員')hint=`登入 email：${email}`;
+  else if(role==='組長')hint=`登入 email：teamlead${email}`;
+  else hint=`登入 email：scmsection1${email} 或 scmsection2${email}`;
+  document.getElementById('pmLoginHint').textContent=hint;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const pmRole=document.getElementById('pmRole');
+  const pmEmail=document.getElementById('pmEmail');
+  if(pmRole)pmRole.addEventListener('change',updatePermHint);
+  if(pmEmail)pmEmail.addEventListener('input',updatePermHint);
+});
+function savePerm(){
+  const id=document.getElementById('pmId').value.trim();
+  const zh=document.getElementById('pmZh').value.trim();
+  const en=document.getElementById('pmEn').value.trim();
+  const email=document.getElementById('pmEmail').value.trim().toLowerCase();
+  const country=document.getElementById('pmCountry').value;
+  const role=document.getElementById('pmRole').value;
+  if(!en||!email){alert('請填英文名稱和 Email');return;}
+  const list=getPermList();
+  const entry={id,zh,en,email,country,role};
+  if(editPermIdx!=null){list[editPermIdx]=entry;}
+  else{
+    if(list.find(u=>u.email===email)){alert('此 Email 已存在');return;}
+    list.push(entry);
+  }
+  permList=list;savePermList();closePermModal();renderPermTable();
+}
+function editPerm(i){openPermModal(i);}
+function deletePerm(i){
+  const list=getPermList();
+  if(!confirm(`確定刪除 ${list[i].en} 的登入權限？`))return;
+  list.splice(i,1);permList=list;savePermList();renderPermTable();
+}
+
+function renderLockBtn(){
+  const btn=document.getElementById('lockSchedBtn');
+  const wrap=document.getElementById('lockBannerWrap');
+  if(!btn)return;
+  const locked=isMonthLocked(cMonth);
+  btn.style.display=isLeader()?'':'none';
+  if(locked){
+    btn.textContent='解除確定班表';
+    btn.style.background='#fef9c3';btn.style.color='#854d0e';btn.style.borderColor='#fde047';
+    if(wrap)wrap.innerHTML='<div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:8px 12px;color:#854d0e;font-size:13px">✅ 本月班表已確定發布，組員可查看</div>';
+  }else{
+    btn.textContent='確定班表';
+    btn.style.background='#f0fdf4';btn.style.color='#166534';btn.style.borderColor='#86efac';
+    if(wrap)wrap.innerHTML='';
+  }
+}
+function toggleLockSched(){
+  if(!isLeader()){alert('需要組長或課長權限');return;}
+  const locked=isMonthLocked(cMonth);
+  if(locked){
+    if(!confirm('確定解除本月班表？組員將無法查看排班結果'))return;
+    unlockMonth(cMonth);
+  }else{
+    if(!confirm('確定發布本月班表？組員將可以查看排班結果'))return;
+    lockMonth(cMonth);
+  }
+  renderLockBtn();populateMonthSelect();
+}
+
+function goPage(name){
+  // Permission gate
+  const allowed={
+    setup: isLeader(),
+    employees: isLeader(),
+    prefs: true,
+    demand: true,
+    result: isLeader(),
+    overtime: isLeader(),
+    perms: isCourse(),
+  };
+  if(allowed[name]===false){
+    alert('您沒有權限查看此頁面');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  ['setup','employees','prefs','demand','result','overtime'].forEach((n,i)=>{if(n===name)document.querySelectorAll('.nav-btn')[i].classList.add('active');});if(name==='demand'){renderDemand();populateDemandSelects();}if(name==='perms')renderPermTable();if(name==='result'){renderLockBtn();populateResultSelects();}if(name==='prefs')renderPrefClosedBtn();if(name==='employees')populateGroupSelect('empGroupSelect');
+}
+
+// Populate month selector: current month -2 to +6, no duplicates
+function populateMonthSelect(){
+  const now=new Date();
+  const sel=document.getElementById('monthSelect');
+  if(!sel)return;
+  sel.innerHTML='';
+  // locked months from confirmed schedules
+  const locked=JSON.parse(localStorage.getItem('kkday_scm_locked')||'[]');
+  for(let delta=-2;delta<=6;delta++){
+    const d=new Date(now.getFullYear(),now.getMonth()+delta,1);
+    const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0');
+    const val=`${y}-${mo}`;
+    const isPast=d<new Date(now.getFullYear(),now.getMonth(),1);
+    const isLocked=locked.includes(val);
+    const label=`${y}年${d.getMonth()+1}月${isPast?'（已過）':isLocked?'（已確定）':''}`;
+    const opt=document.createElement('option');
+    opt.value=val;opt.textContent=label;
+    if(isPast||isLocked)opt.style.color='#aaa';
+    if(val===cMonth)opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
+populateMonthSelect();
+renderGroupSelect();refresh();if(currentUser)applyPermissions();
+</script>
+</div>
+
+</body></html>
